@@ -1,0 +1,47 @@
+############################
+# 🔹 ROOT LEVEL
+############################
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+
+############################
+# 🔹 FRONTEND (Angular)
+############################
+frontend/OMS_frontend_angular/node_modules/
+frontend/OMS_frontend_angular/dist/
+frontend/OMS_frontend_angular/.angular/
+frontend/OMS_frontend_angular/.cache/
+frontend/OMS_frontend_angular/.vscode/
+frontend/OMS_frontend_angular/.idea/
+frontend/OMS_frontend_angular/*.log
+
+############################
+# 🔹 BACKEND (Spring Boot)
+############################
+backend/OMS_backend_springboot/target/
+backend/OMS_backend_springboot/*.log
+
+############################
+# 🔹 IDE FILES (GLOBAL)
+############################
+.vscode/
+.idea/
+*.swp
+*.swo
+
+############################
+# 🔹 BUILD FILES
+############################
+*.class
+*.jar
+*.war
+
+############################
+# 🔹 MAVEN WRAPPER (KEEP THESE)
+############################
+!backend/OMS_backend_springboot/mvnw
+!backend/OMS_backend_springboot/mvnw.cmd
+!backend/OMS_backend_springboot/.mvn/wrapper/maven-wrapper.jar
