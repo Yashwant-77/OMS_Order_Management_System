@@ -53,5 +53,5 @@ jobs:
 
           git fetch origin
           git checkout main
-          git merge origin/dev --no-ff -m "Auto merge dev to main"
+          git merge origin/dev --allow-unrelated-histories --no-ff -m "Auto merge dev to main"
           git push origin main
