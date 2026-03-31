@@ -37,8 +37,9 @@ jobs:
         working-directory: frontend/OMS_frontend_angular
         run: npm install
 
-      - name: Skip Angular Tests
-        run: echo "Skipping frontend tests"
+      - name: Run Angular Tests
+        working-directory: frontend/OMS_frontend_angular
+        run: npx ng test --watch=false
 
       - name: Build Angular
         working-directory: frontend/OMS_frontend_angular
