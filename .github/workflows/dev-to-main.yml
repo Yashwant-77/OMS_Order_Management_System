@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   test-and-merge:
@@ -24,9 +23,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Test Backend
-        working-directory: backend/OMS_backend_springboot
-        run: mvn test
+      - name: Build Backend
+        working-directory: backend/OMS_backend
+        run: mvn clean install
 
       # ===== Frontend =====
       - name: Setup Node
@@ -38,13 +37,25 @@ jobs:
         working-directory: frontend/OMS_frontend_angular
         run: npm install
 
-      - name: Test Frontend
+      - name: Run Angular Tests
         working-directory: frontend/OMS_frontend_angular
-        run: npm test -- --watch=false --browsers=ChromeHeadless
+        run: npm run test -- --watch=false --browsers=ChromeHeadlessNoSandbox
 
-      # ===== Enable Auto Merge =====
-      - name: Enable Auto Merge
-        if: success()
+      - name: Build Angular
+        working-directory: frontend/OMS_frontend_angular
+        run: npm run build -- --configuration production
+
+      # ===== Create Pull Request =====
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: dev
+          base: main
+          title: "Auto Merge: dev → main"
+          body: "Automated PR after successful tests"
+
+      # ===== Auto Merge PR =====
+      - name: Merge PR
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           merge-method: squash
