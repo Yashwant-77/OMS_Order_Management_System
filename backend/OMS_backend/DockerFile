@@ -1,0 +1,30 @@
+# Stage 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
+WORKDIR /app
+
+# Copy project files
+COPY . .
+
+# Give executable permission to mvnw (important fix)
+RUN chmod +x mvnw || true
+
+# Build jar
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run the application
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Copy jar file
+COPY --from=build /app/target/*.jar app.jar
+
+# Give execute permission to jar (extra safety)
+RUN chmod +x app.jar
+
+# Expose port
+EXPOSE 8080
+
+# Run app
+ENTRYPOINT ["java", "-jar", "app.jar"]
