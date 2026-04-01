@@ -1,0 +1,10 @@
+package OMS_backend.contoller;
+
+public enum Role {
+    ADMINISTRATOR,
+    BUSINESS_ANALYST,
+    FINANCIAL_MANAGER,
+    PURCHASING_OFFICER,
+    PRODUCT_MANAGER,
+    SALES_REPRESENTATIVE,
+}
