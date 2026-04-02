@@ -1,4 +1,4 @@
-package OMS_backend.contoller;
+package OMS_backend.model;
 
 public enum Role {
     ADMINISTRATOR,

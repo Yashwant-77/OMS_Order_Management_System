@@ -1,8 +1,8 @@
-package OMS_backend.contoller;
+package OMS_backend.controller;
 
-import OMS_backend.DTO.RegisterRequest;
+import OMS_backend.dto.request.RegisterRequest;
 import OMS_backend.model.User;
-import OMS_backend.services.UserService;
+import OMS_backend.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
