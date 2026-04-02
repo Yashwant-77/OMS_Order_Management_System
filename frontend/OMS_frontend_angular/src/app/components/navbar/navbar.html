@@ -1,0 +1,110 @@
+<mat-drawer-container class="h-screen">
+
+  <!-- SIDENAV -->
+  <mat-drawer #drawer mode="over" class="w-64! " >
+
+    <div class="flex justify-between items-center bg-[#3f51b5] text-white p-4">
+        <p class="text-lg font-semibold ">Menu</p>
+        <button class="text-white!" mat-icon-button (click)="drawer.toggle()">
+
+            <mat-icon>close</mat-icon>
+        </button>
+
+    </div>
+
+    <ul class="flex flex-col gap-4 p-4">
+
+      <li routerLink="/orders" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
+        <mat-icon>shopping_cart</mat-icon> Orders
+      </li>
+
+      <li routerLink="/bom" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
+        <mat-icon>inventory_2</mat-icon> BOM
+      </li>
+
+      <li routerLink="/purchase" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
+        <mat-icon>local_shipping</mat-icon> Purchase
+      </li>
+
+      <li routerLink="/invoice" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
+        <mat-icon>receipt</mat-icon> Invoice
+      </li>
+
+      <li routerLink="/reports" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
+        <mat-icon>bar_chart</mat-icon> Reports
+      </li>
+
+    </ul>
+
+  </mat-drawer>
+
+  <!-- MAIN CONTENT -->
+  <mat-drawer-content>
+
+    <!-- NAVBAR -->
+    <mat-toolbar color="primary" class="flex justify-between px-2 sm:px-4">
+
+      <!-- LEFT -->
+      <div class="flex items-center gap-2">
+        <mat-icon class="hidden! sm:block!">inventory</mat-icon>
+        <span class="text-lg font-semibold">
+          OMS | <span class="font-bold">ABC Ltd.</span>
+        </span>
+      </div>
+
+      <!-- CENTER (Desktop only) -->
+      <ul class="hidden md:flex items-center gap-6 lg:gap-10 text-sm font-medium">
+
+        <li routerLink="/orders" routerLinkActive="font-bold"
+            class="flex items-center gap-1 cursor-pointer hover:opacity-80">
+          <mat-icon>shopping_cart</mat-icon> Orders
+        </li>
+
+        <li routerLink="/bom" class="flex items-center gap-1 cursor-pointer">
+          <mat-icon>inventory_2</mat-icon> BOM
+        </li>
+
+        <li routerLink="/purchase" class="flex items-center gap-1 cursor-pointer">
+          <mat-icon>local_shipping</mat-icon> Purchase
+        </li>
+
+        <li routerLink="/invoice" class="flex items-center gap-1 cursor-pointer">
+          <mat-icon>receipt</mat-icon> Invoice
+        </li>
+
+        <li routerLink="/reports" class="flex items-center gap-1 cursor-pointer">
+          <mat-icon>bar_chart</mat-icon> Reports
+        </li>
+
+      </ul>
+
+      <!-- RIGHT -->
+      <div class="flex  items-center gap-0 lg:gap-3 ">
+
+        <!-- Notifications -->
+        <button class="" mat-icon-button>
+          <mat-icon style="color:#ffffff" >notifications</mat-icon>
+        </button>
+
+        <!-- Profile -->
+        <button class="" mat-icon-button class="">
+          <mat-icon style="color:#ffffff">account_circle</mat-icon>
+        </button>
+
+        <!-- MOBILE MENU -->
+        <button class="md:hidden!" mat-icon-button  (click)="drawer.toggle()">
+          <mat-icon style="color:#ffffff">menu</mat-icon>
+        </button>
+
+      </div>
+
+    </mat-toolbar>
+
+    <!-- PAGE CONTENT -->
+    <div class="p-4">
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-drawer-content>
+
+</mat-drawer-container>
