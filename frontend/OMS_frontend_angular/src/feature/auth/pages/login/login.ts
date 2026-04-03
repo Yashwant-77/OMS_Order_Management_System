@@ -25,7 +25,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 })
 export class Login {
   data = {
-
+    username: '',
     email:  '',
     password: '',
     role:''
@@ -36,7 +36,7 @@ export class Login {
   doSubmitForm(){
     console.log("Trying to submit form");
 
-    if(this.data.email === '' || this.data.password == '' || this.data.role == ''){
+    if(this.data.username == '' || this.data.email === '' || this.data.password == '' || this.data.role == ''){
       this.snak.open("Fields can not be empty !");
       return;
     }

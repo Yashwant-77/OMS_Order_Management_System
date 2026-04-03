@@ -31,14 +31,20 @@
 
 
                 <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Username</mat-label>
+                    <input matInput placeholder="Username" name="username" [(ngModel)]="data.username" required>
+                </mat-form-field>
+
+
+                <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Email</mat-label>
-                    <input matInput placeholder="Placeholder" name="email" [(ngModel)]="data.email" required>
+                    <input matInput placeholder="Email" name="email" [(ngModel)]="data.email" required>
                 </mat-form-field>
 
 
                 <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Password</mat-label>
-                    <input type="password" matInput placeholder="Placeholder" name="password"
+                    <input type="password" matInput placeholder="Password" name="password"
                         [(ngModel)]="data.password" required>
                 </mat-form-field>
 
