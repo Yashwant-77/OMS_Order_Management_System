@@ -12,8 +12,8 @@ export class AuthApi {
 
   }
 
-  login(data:any){
-    return this.http.post(`${this.baseUrl}/users/login` , data);
+  callLogin(data:any){
+    return this.http.post(`${this.baseUrl}/api/auth/login` , data)
   }
-  
+
 }

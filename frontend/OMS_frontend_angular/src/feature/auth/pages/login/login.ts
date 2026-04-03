@@ -24,29 +24,32 @@ import {MatSnackBar} from '@angular/material/snack-bar';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Login {
-  data = {
-    username: '',
+  credential = {
+    // username: '',
     email:  '',
     password: '',
     role:''
   }
 
-  constructor(private login:AuthApi , private snak : MatSnackBar){}
+  constructor(private loginService:AuthApi , private snak : MatSnackBar){}
 
   doSubmitForm(){
     console.log("Trying to submit form");
 
-    if(this.data.username == '' || this.data.email === '' || this.data.password == '' || this.data.role == ''){
+    if(
+      // this.credential.username == '' || 
+      this.credential.email === '' || this.credential.password == '' || this.credential.role == ''){
       this.snak.open("Fields can not be empty !");
       return;
     }
 
-    this.login.login(this.data).subscribe({
-      next : ()=> {} , 
-      error : () => {} , 
-      complete : ()=> {}
-    })
+    
+
+    this.loginService.callLogin(this.credential).subscribe({
+      next : (res)=> console.log(res)
+    });
+
+
+
   }
-
-
 }

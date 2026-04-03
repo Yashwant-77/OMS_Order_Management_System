@@ -18,34 +18,34 @@
 
                 <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Login as </mat-label>
-                    <mat-select name="role" [(ngModel)]="data.role" required>
+                    <mat-select name="role" [(ngModel)]="credential.role" required>
                         <mat-option value="one">ADMINISTRATOR</mat-option>
-                        <mat-option value="two">PRODUCT MANAGER</mat-option>
-                        <mat-option value="">SALES REPRESENTATIVE</mat-option>
-                        <mat-option value="two">PURCHASING OFFICER</mat-option>
-                        <mat-option value="">FINANCE MANAGER</mat-option>
-                        <mat-option value="">BUSINESS ANALYTICS</mat-option>
+                        <mat-option value="two">PRODUCT_MANAGER</mat-option>
+                        <mat-option value="">SALES_REPRESENTATIVE</mat-option>
+                        <mat-option value="two">PURCHASING_OFFICER</mat-option>
+                        <mat-option value="">FINANCE_MANAGER</mat-option>
+                        <mat-option value="">BUSINESS_ANALYST</mat-option>
                         <mat-option value="two"></mat-option>
                     </mat-select>
                 </mat-form-field>
 
 
-                <mat-form-field class="w-full" appearance="outline">
+                <!-- <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Username</mat-label>
-                    <input matInput placeholder="Username" name="username" [(ngModel)]="data.username" required>
-                </mat-form-field>
+                    <input matInput placeholder="Username" name="username" [(ngModel)]="credential.username" required>
+                </mat-form-field> -->
 
 
                 <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Email</mat-label>
-                    <input matInput placeholder="Email" name="email" [(ngModel)]="data.email" required>
+                    <input matInput placeholder="Email" name="email" [(ngModel)]="credential.email" required>
                 </mat-form-field>
 
 
                 <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Password</mat-label>
                     <input type="password" matInput placeholder="Password" name="password"
-                        [(ngModel)]="data.password" required>
+                        [(ngModel)]="credential.password" required>
                 </mat-form-field>
 
                 <div class="flex gap-3">
