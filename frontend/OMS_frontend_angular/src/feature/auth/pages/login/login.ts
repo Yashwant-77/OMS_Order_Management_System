@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { JsonPipe } from '@angular/common';
-import { LoginService } from '../../services/login-service';
+import { AuthApi } from '../../../../core/api/auth.api';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 
@@ -31,7 +31,7 @@ export class Login {
     role:''
   }
 
-  constructor(private login:LoginService , private snak : MatSnackBar){}
+  constructor(private login:AuthApi , private snak : MatSnackBar){}
 
   doSubmitForm(){
     console.log("Trying to submit form");
@@ -41,14 +41,11 @@ export class Login {
       return;
     }
 
-    this.login.doLogin(this.data).subscribe(
-      response=> {
-        console.log(response)
-      },
-      error=>{
-        console.log(error)
-      }
-    )
+    this.login.login(this.data).subscribe({
+      next : ()=> {} , 
+      error : () => {} , 
+      complete : ()=> {}
+    })
   }
 
 

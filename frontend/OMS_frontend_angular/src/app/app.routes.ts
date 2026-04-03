@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Login } from './pages/login/login';
-import { Navbar } from './components/navbar/navbar';
+import { Login } from '../feature/auth/pages/login/login';
+import { Navbar } from './shared/components/navbar/navbar';
 
 export const routes: Routes = [
     // {

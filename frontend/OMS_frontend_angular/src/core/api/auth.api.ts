@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
-export class LoginService {
+export class AuthApi {
   private baseUrl = "http://localhost:8080";
 
 
@@ -12,7 +12,7 @@ export class LoginService {
 
   }
 
-  doLogin(data:any){
+  login(data:any){
     return this.http.post(`${this.baseUrl}/users/login` , data);
   }
   
