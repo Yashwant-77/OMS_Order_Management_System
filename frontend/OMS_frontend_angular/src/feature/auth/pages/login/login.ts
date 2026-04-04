@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { JsonPipe } from '@angular/common';
-import { AuthApi } from '../../../../core/api/auth.api';
+import { AuthApi } from '../../../../core/services/api/auth.api';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 
@@ -28,7 +28,7 @@ export class Login {
     // username: '',
     email:  '',
     password: '',
-    role:''
+    role:''   // DEFAULT ROLE
   }
 
   constructor(private loginService:AuthApi , private snak : MatSnackBar){}
@@ -44,12 +44,6 @@ export class Login {
     }
 
     
-
-    this.loginService.callLogin(this.credential).subscribe({
-      next : (res)=> console.log(res)
-    });
-
-
 
   }
 }

@@ -19,21 +19,14 @@
                 <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Login as </mat-label>
                     <mat-select name="role" [(ngModel)]="credential.role" required>
-                        <mat-option value="one">ADMINISTRATOR</mat-option>
-                        <mat-option value="two">PRODUCT_MANAGER</mat-option>
-                        <mat-option value="">SALES_REPRESENTATIVE</mat-option>
-                        <mat-option value="two">PURCHASING_OFFICER</mat-option>
-                        <mat-option value="">FINANCE_MANAGER</mat-option>
-                        <mat-option value="">BUSINESS_ANALYST</mat-option>
-                        <mat-option value="two"></mat-option>
+                        <mat-option value="ADMINISTRATOR">ADMINISTRATOR</mat-option>
+                        <mat-option value="PRODUCT_MANAGER">PRODUCT MANAGER</mat-option>
+                        <mat-option value="SALES_REPRESENTATIVE">SALES REPRESENTATIVE</mat-option>
+                        <mat-option value="PURCHASING_OFFICER">PURCHASING OFFICER</mat-option>
+                        <mat-option value="FINANCE_MANAGER">FINANCE MANAGER</mat-option>
+                        <mat-option value="BUSINESS_ANALYST">BUSINESS ANALYST</mat-option>
                     </mat-select>
                 </mat-form-field>
-
-
-                <!-- <mat-form-field class="w-full" appearance="outline">
-                    <mat-label>Username</mat-label>
-                    <input matInput placeholder="Username" name="username" [(ngModel)]="credential.username" required>
-                </mat-form-field> -->
 
 
                 <mat-form-field class="w-full" appearance="outline">
@@ -55,7 +48,7 @@
                 </div>
 
             </form>
-            <!-- {{data | json}} -->
+            <!-- {{credential | json}} -->
         </div>
 
     </div>
