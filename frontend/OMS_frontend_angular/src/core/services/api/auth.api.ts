@@ -1,19 +1,23 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthApi {
-  private baseUrl = "http://localhost:8080";
+  PATH_OF_API = "http://localhost:8080";
+
+  requestHeader  = new HttpHeaders({
+    "No-Auth" : "True"
+  })
 
 
   constructor(private http:HttpClient){
 
   }
 
-  callLogin(data:any){
-    return this.http.post(`${this.baseUrl}/api/auth/login` , data)
+  callLogin(loginData:any){
+    return this.http.post(`${this.PATH_OF_API}/api/auth/login` , loginData );
   }
 
 }

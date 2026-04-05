@@ -5,7 +5,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { JsonPipe } from '@angular/common';
@@ -42,6 +42,16 @@ export class Login {
       this.snak.open("Fields can not be empty !");
       return;
     }
+
+
+    this.loginService.callLogin(this.credential).subscribe(
+      (response)=> {
+        console.log(response)
+      } ,
+      (error) => {
+        console.log(error)
+      }
+    );
 
     
 

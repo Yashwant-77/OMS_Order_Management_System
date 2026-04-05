@@ -1,7 +1,7 @@
 <div class="bg-gray-300 min-h-screen">
 
     <!-- basic navbar  -->
-    <mat-toolbar color="primary" class="px-4">
+    <mat-toolbar color="primary"  class="px-4">
         <span class="text-lg font-semibold">
             OMS | <span class="font-bold">ABC Ltd.</span>
         </span>
@@ -16,7 +16,7 @@
 
             <form (ngSubmit)="doSubmitForm()" #loginForm="ngForm">
 
-                <mat-form-field class="w-full" appearance="outline">
+                <mat-form-field  class="w-full" appearance="outline">
                     <mat-label>Login as </mat-label>
                     <mat-select name="role" [(ngModel)]="credential.role" required>
                         <mat-option value="ADMINISTRATOR">ADMINISTRATOR</mat-option>
