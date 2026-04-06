@@ -45,22 +45,19 @@ public class UserService {
 
     public AuthResponse login(LoginRequest request) {
 
-        // Step 1: Authenticate — throws BadCredentialsException if wrong
+        // authenticate using email & password
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
 
-        // Step 2: Load user for token generation
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
 
-        // Step 3: Generate JWT
         String token = jwtUtil.generateToken(userDetails);
 
-        // Step 4: Fetch role to include in response
-        User user = userRepository.findByUsername(request.getUsername()).get();
+        User user = userRepository.findByEmail(request.getEmail()).get();
 
         return new AuthResponse(token, user.getUsername(), user.getRole().name());
     }
