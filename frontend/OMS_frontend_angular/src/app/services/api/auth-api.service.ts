@@ -1,11 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthApi {
-  PATH_OF_API = "http://localhost:8080";
+export class AuthApiService {
+  
 
   requestHeader  = new HttpHeaders({
     "No-Auth" : "True"
@@ -17,7 +19,7 @@ export class AuthApi {
   }
 
   callLogin(loginData:any){
-    return this.http.post(`${this.PATH_OF_API}/api/auth/login` , loginData );
+    return this.http.post(`${environment.baseUrl}/api/auth/login` , loginData , {headers : this.requestHeader} );
   }
 
 }

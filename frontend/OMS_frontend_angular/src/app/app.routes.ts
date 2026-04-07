@@ -1,17 +1,46 @@
 import { Routes } from '@angular/router';
 import { Login } from '../feature/auth/pages/login/login';
-import { Navbar } from './shared/components/navbar/navbar';
+import { HomeLayout } from './layouts/home-layout/home-layout';
+
 
 export const routes: Routes = [
     {
-        path : "",
-        component: Login,
+        path : "login",
+        component :Login,
         pathMatch : "full"
     },
-    // temporary route
-    // {
-    //     path : "",
-    //     component: Navbar,
-    //     pathMatch : "full"
-    // }
+    {
+        path : "",
+        component: HomeLayout,
+        pathMatch : "full"
+    }
+
+
+
+
+
+
+
+    // Public route
+//   { path: 'login', component: LoginComponent },
+
+  // Layout route
+//   {
+//     path: '',
+//     component: LayoutComponent,
+//     canActivate: [AuthGuard],
+//     children: [
+//       { path: 'orders', component: OrdersComponent },
+//       { path: 'bom', component: BomComponent },
+//       { path: 'purchase', component: PurchaseComponent },
+//       { path: 'invoice', component: InvoiceComponent },
+//       { path: 'reports', component: ReportsComponent },
+
+//       // default route
+//       { path: '', redirectTo: 'orders', pathMatch: 'full' }
+//     ]
+//   },
+
+//   // fallback
+//   { path: '**', redirectTo: '' }
 ];
