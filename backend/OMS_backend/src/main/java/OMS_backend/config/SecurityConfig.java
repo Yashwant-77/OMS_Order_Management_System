@@ -36,40 +36,40 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-
-                // disable CSRF — we're stateless (JWT), not using browser sessions
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ NEW WAY
+                // configure CORS to allow requests from our Angular frontend
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // disable CSRF since we're using JWTs and not cookies for session management
                 .csrf(AbstractHttpConfigurer::disable)
-                // define which endpoints are open vs protected
+                // set permissions on endpoints
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()  // register + login = public
-                        .anyRequest().authenticated()                  // everything else = needs token
+                        // public endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                // stateless — Spring won't create or use HTTP sessions
+                // make sure we use stateless session; session won't be used to store user's state.
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                // tell Spring which AuthenticationProvider to use
                 .authenticationProvider(authenticationProvider())
-                // plug our JWT filter BEFORE Spring's default login filter
+                // add our custom JWT security filter before the default username/password authentication filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-
+    // CORS configuration to allow requests from Angular frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
+        // register the CORS configuration for all endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
+        // apply this CORS configuration to all endpoints
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 

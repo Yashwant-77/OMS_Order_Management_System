@@ -9,6 +9,7 @@ import OMS_backend.repository.UserRepository;
 import OMS_backend.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,26 +20,24 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
     private final AuthenticationManager authenticationManager;
+
     private final CustomUserDetailsService userDetailsService;
+
     private final JwtUtil jwtUtil;
 
     public User registerUser(RegisterRequest request) {
-
-        if (userRepository.findByUsername(request.getUsername()).
-                isPresent()) {
-            throw new RuntimeException("Username already exists");
-        }
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
 
         User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // ✅ BCrypt now
         user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.valueOf(request.getRole().toUpperCase()));
 
         return userRepository.save(user);
@@ -46,7 +45,7 @@ public class UserService {
 
     public AuthResponse login(LoginRequest request) {
 
-        // authenticate using email & password
+        // authenticate email + password
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -54,12 +53,20 @@ public class UserService {
                 )
         );
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        // load user from DB
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // validate the selected role matches the user's actual role
+        Role selectedRole = Role.valueOf(request.getRole().toUpperCase());
+        if (!user.getRole().equals(selectedRole)) {
+            throw new BadCredentialsException("You are not registered as " + selectedRole.name());
+        }
+
+        // generate token
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtUtil.generateToken(userDetails);
 
-        User user = userRepository.findByEmail(request.getEmail()).get();
-
-        return new AuthResponse(token, user.getUsername(), user.getRole().name());
+        return new AuthResponse(token, user.getEmail(), user.getRole().name());
     }
 }
