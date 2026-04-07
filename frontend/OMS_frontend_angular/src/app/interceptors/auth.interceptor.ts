@@ -1,45 +1,42 @@
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
-import { UserService } from "../services/user/user.service";
-import { Router } from "@angular/router";
-// import { Observable, throwError } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { UserService } from '../services/user/user.service';
+import { catchError, throwError } from 'rxjs';
 
-export class AuthInterceptor implements HttpInterceptor {
-    constructor(private userService:UserService , private router : Router){}
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        if(req.headers.get("No-Auth") === 'True'){
-            return next.handle(req.clone());
-        }
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
-        const token = this.userService.getToken();
-        this.addToken(req , token);
+  const userService = inject(UserService);
+  const router = inject(Router);
 
-        return next.handle(req).pipe(
-            catchError(
-                (err : HttpErrorResponse)=>{
-                    console.log(err.status);
-                    if(err.status === 401){
-                        this.router.navigate(['/login'])
-                    }
-                    else if(err.status === 403){
-                        this.router.navigate(['/forbidden']);
-                    }
-                    return throwError("Some thing is wrong");
-                }
-            )
-        )
-    }
+  // Skip token for No-Auth requests
+  if (req.headers.get('No-Auth') === 'True') {
+    return next(req);
+  }
 
-    private addToken(request:HttpRequest<any> , token : string)
-    {
-        return request.clone(
-            {
-                setHeaders : {
-                    Authorization : `Bearer ${token}`
-                }
-            }
-        )
-    }
+  const token = userService.getToken();
 
-    
-}
+  let modifiedReq = req;
+
+  if (token) {
+    modifiedReq = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
+
+  return next(modifiedReq).pipe(
+    catchError((err: HttpErrorResponse) => {
+      console.log(err.status);
+
+      if (err.status === 401) {
+        router.navigate(['/login']);
+      } else if (err.status === 403) {
+        router.navigate(['/forbidden']);
+      }
+
+      return throwError(() => new Error('Something is wrong'));
+    })
+  );
+};
