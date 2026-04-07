@@ -3,30 +3,29 @@ package OMS_backend.controller;
 import OMS_backend.dto.request.LoginRequest;
 import OMS_backend.dto.request.RegisterRequest;
 import OMS_backend.dto.response.AuthResponse;
-import OMS_backend.model.User;
+import OMS_backend.dto.response.UserResponse;
 import OMS_backend.service.UserService;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("api/auth")
-@AllArgsConstructor
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 public class AuthController {
-    private UserService userService;
+
+    private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        User user = userService.registerUser(request);
-        return new ResponseEntity<>("User registered successfully: " + user.getEmail(), HttpStatus.CREATED);
+    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
+        UserResponse response = userService.registerUser(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse response = userService.login(request);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
-
 }
