@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Login } from '../feature/auth/pages/login/login';
 import { HomeLayout } from './layouts/home-layout/home-layout';
+import { authGuard } from './guards/auth-guard';
 
 
 export const routes: Routes = [
@@ -12,7 +13,17 @@ export const routes: Routes = [
     {
         path : "",
         component: HomeLayout,
-        pathMatch : "full"
+        pathMatch : "full",
+        children: [
+            // { path: 'admin', canActivate:[authGuard] 
+                // ,component: 
+                //  ,data : {role:["ADMINISTRATOR"]}},
+            // { path: 'bom', component: OrdersComponent },
+            // { path: 'orders', component: BomComponent }
+            // { path: 'purchase', component: BomComponent }
+            // { path: 'invoice', component: OrdersComponent },
+            // { path: 'reports', component: BomComponent }
+        ]
     }
 
 

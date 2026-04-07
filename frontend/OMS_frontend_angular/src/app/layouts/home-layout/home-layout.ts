@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, HostListener } from '@angular/core'
 import { RouterOutlet } from '@angular/router';
+import { UserService } from '../../services/user/user.service';
 
 @Component({
   selector: 'app-home-layout',
@@ -11,7 +12,11 @@ import { RouterOutlet } from '@angular/router';
 })
 export class HomeLayout implements OnInit{
 
-   isCollapsed = false;
+  constructor(private userService : UserService){
+
+  }
+
+  isCollapsed = false;
   mobileOpen = false;
   isMobile = false;
 
