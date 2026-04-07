@@ -8,17 +8,16 @@ import {MatButtonModule} from '@angular/material/button';
 import { FormsModule, NgForm } from '@angular/forms';
 
 import {MatToolbarModule} from '@angular/material/toolbar';
-import { JsonPipe } from '@angular/common';
-import { AuthApi } from '../../../../app/services/api/auth.api';
+import { AuthApiService } from '../../../../app/services/api/auth-api.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import { COLOR_CONSTANTS } from '../../../../app/shared/utils/colorConstants';
+import { UserService } from '../../../../app/services/user/user.service';
+import { Router } from '@angular/router';
 
-
-
-// import { Navbar } from '../navbar/navbar';
 
 @Component({
   selector: 'app-login',
-  imports: [MatFormFieldModule , MatIconModule , MatInputModule , MatSelectModule , MatDividerModule  ,FormsModule , MatButtonModule   , MatToolbarModule , JsonPipe ],
+  imports: [MatFormFieldModule , MatIconModule , MatInputModule , MatSelectModule , MatDividerModule  ,FormsModule , MatButtonModule   , MatToolbarModule  ],
   templateUrl: './login.html',
   styleUrl: './login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,7 +30,10 @@ export class Login {
     role:''   // DEFAULT ROLE
   }
 
-  constructor(private loginService:AuthApi , private snak : MatSnackBar){}
+  colors = COLOR_CONSTANTS;
+  constructor(private authApiService:AuthApiService , private snak : MatSnackBar , private userService : UserService , 
+    private router : Router
+  ){}
 
   doSubmitForm(){
     console.log("Trying to submit form");
@@ -44,9 +46,33 @@ export class Login {
     }
 
 
-    this.loginService.callLogin(this.credential).subscribe(
-      (response)=> {
+    this.authApiService.callLogin(this.credential).subscribe(
+      (response:any)=> {
         console.log(response)
+
+        // temporary according the bakend response
+        this.userService.setRoles(response.user.role);
+        this.userService.setToken(response.jwtToken);
+
+        const role = response.user.role;
+        if(role == "ADMINISTRATOR"){
+          this.router.navigate(["/admin"])
+        }
+        else if(role == "PRODUCT_MANAGER"){
+          this.router.navigate(["/product-manager"])
+        }
+        else if(role == "SALES_REPRESENTATION"){
+          this.router.navigate(["/sales-representation"])
+        }
+        else if(role == "PURCHASING_OFFICER"){
+          this.router.navigate(["/purchasing-officer"])
+        }
+        else if(role == "FINANCE_MANAGER"){
+          this.router.navigate(["/finance-manager"])
+        }
+        else if(role == "BUSINESS_ANALYST"){
+          this.router.navigate(["/business-analyst"])
+        }
       } ,
       (error) => {
         console.log(error)

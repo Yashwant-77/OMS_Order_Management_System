@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthApi {
+export class AuthApiService {
   
 
   requestHeader  = new HttpHeaders({
@@ -19,7 +19,7 @@ export class AuthApi {
   }
 
   callLogin(loginData:any){
-    return this.http.post(`${environment.baseUrl}/api/auth/login` , loginData );
+    return this.http.post(`${environment.baseUrl}/api/auth/login` , loginData , {headers : this.requestHeader} );
   }
 
 }

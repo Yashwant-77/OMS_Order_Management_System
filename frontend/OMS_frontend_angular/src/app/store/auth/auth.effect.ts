@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as AuthActions from './auth.actions';
-import { AuthApi } from '../../../app/services/api/auth.api';
+import { AuthApiService } from '../../services/api/auth-api.service';
 import { login, loginSuccess, loginFailure, logout } from './auth.actions';
 import { catchError, map, switchMap, of, tap } from 'rxjs';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ export class AuthEffects {
 
   constructor(
     private actions$: Actions,
-    private authApi: AuthApi,
+    private authApi: AuthApiService,
     private router: Router
   ) {}
 

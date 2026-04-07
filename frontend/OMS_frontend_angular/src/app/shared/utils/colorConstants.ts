@@ -1,7 +1,12 @@
 
-export const lightThemeBackground = "";
-export const lightThemePopColor = ""
-export const lightThemeCardBackground =""
-export const darkThemeBackground = "";
-export const darkThemePopColor = ""
-export const darkThemeCardBackground =""
+
+
+
+export const COLOR_CONSTANTS = {
+  lightThemeBackground  :  "bg-gray-300",
+  lightThemePopColor  :  "bg-[#3f : 1b5]",
+  lightThemeCardBackground  : "bg-white",
+  darkThemeBackground  :  "",
+  darkThemePopColor  :  "",
+  darkThemeCardBackground  : "",
+};
