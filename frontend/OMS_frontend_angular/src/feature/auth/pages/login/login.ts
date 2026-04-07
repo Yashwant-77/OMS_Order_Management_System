@@ -51,27 +51,27 @@ export class Login {
         console.log(response)
 
         // temporary according the bakend response
-        this.userService.setRoles(response.user.role);
-        this.userService.setToken(response.jwtToken);
+        this.userService.setRole(response.role);
+        this.userService.setToken(response.token);
 
-        const role = response.user.role;
+        const role = response.role;
         if(role == "ADMINISTRATOR"){
           this.router.navigate(["/admin"])
         }
         else if(role == "PRODUCT_MANAGER"){
-          this.router.navigate(["/product-manager"])
+          this.router.navigate(["/bom"])
         }
         else if(role == "SALES_REPRESENTATION"){
-          this.router.navigate(["/sales-representation"])
+          this.router.navigate(["/sales"])
         }
         else if(role == "PURCHASING_OFFICER"){
-          this.router.navigate(["/purchasing-officer"])
+          this.router.navigate(["/purchase"])
         }
         else if(role == "FINANCE_MANAGER"){
-          this.router.navigate(["/finance-manager"])
+          this.router.navigate(["/invoice"])
         }
         else if(role == "BUSINESS_ANALYST"){
-          this.router.navigate(["/business-analyst"])
+          this.router.navigate(["/reports"])
         }
       } ,
       (error) => {

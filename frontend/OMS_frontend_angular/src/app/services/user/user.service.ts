@@ -7,12 +7,12 @@ export class UserService {
 
   constructor(){}
 
-  public setRoles(roles:[]){
-    localStorage.setItem("roles" , JSON.stringify(roles));
+  public setRole(role:string){
+    localStorage.setItem("role" , role);
   }
 
-  public getRoles() : [] {
-    return JSON.parse(localStorage.getItem("roles") || "[]");
+  public getRole() : string{
+    return JSON.parse(localStorage.getItem("role") || "" );
   }
 
   public setToken(jwtToken:string){
@@ -28,7 +28,21 @@ export class UserService {
   }
 
   public isLoggedIn(){
-    return this.getRoles() && this.getToken();
+    return this.getRole() && this.getToken();
+  }
+
+
+  public roleMatch(allowedRoles : String){
+    let isMatch = false;
+
+    for(let i = 0 ; i < allowedRoles.length ; ++i){
+      if(this.getRole() === allowedRoles[i]){
+        isMatch = true;
+        return isMatch;
+      }
+    }
+    return isMatch;
+
   }
 
 
