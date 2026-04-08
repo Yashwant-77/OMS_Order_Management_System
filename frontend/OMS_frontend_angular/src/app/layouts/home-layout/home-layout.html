@@ -1,9 +1,9 @@
-<div class="flex h-screen bg-gray-100">
+<div class="flex h-screen bg-gray-100 overflow-hidden">
   <div class="h-full bg-white">
     <!-- SIDENAV -->
     <aside
       [ngClass]="{
-        'w-55': !isCollapsed,
+        'w-55!': !isCollapsed,
         'w-18': isCollapsed,
         'translate-x-0 shadow-xl z-20': mobileOpen,
         '-translate-x-full': !mobileOpen
@@ -21,12 +21,12 @@
         </button>
              </div>
              
- <ul class="flex flex-col gap-0.5 p-2 mt-1 list-none border-r bg-white  h-full border-gray-200">
+ <ul class="flex flex-col gap-0.5 p-2 mt-1 list-none border-r bg-white  h-full border-gray-200 ">
   <li routerLink="/orders" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium"
       (click)="onNavClick()"
       class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
     <i class="fas fa-shopping-cart text-[18px] shrink-0 w-6 text-center"></i>
-    <span class="text-sm overflow-hidden transition-all duration-240ms"
+    <span class="text-sm  overflow-hidden transition-all duration-240 "
           [style.width]="isCollapsed ? '0' : 'auto'"
           [style.opacity]="isCollapsed ? '0' : '1'">Orders</span>
   </li>
@@ -45,7 +45,7 @@
       (click)="onNavClick()"
       class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
     <i class="fas fa-truck text-[18px] shrink-0 w-6 text-center"></i>
-    <span class="text-sm overflow-hidden transition-all duration-240"
+    <span class="text-sm overflow-hidden transition-all duration-240 "
           [style.width]="isCollapsed ? '0' : 'auto'"
           [style.opacity]="isCollapsed ? '0' : '1'">Purchase</span>
   </li>
