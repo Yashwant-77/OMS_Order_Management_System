@@ -1,18 +1,21 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, HostListener } from '@angular/core'
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { UserService } from '../../services/user/user.service';
+import { MatButtonModule } from '@angular/material/button';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatListModule} from '@angular/material/list';
 
 @Component({
   selector: 'app-home-layout',
-  imports: [CommonModule , RouterOutlet],
+  imports: [CommonModule , RouterOutlet , MatButtonModule , MatMenuModule , MatListModule],
   templateUrl: './home-layout.html',
   styleUrl: './home-layout.css',
 })
 export class HomeLayout implements OnInit{
 
-  constructor(private userService : UserService){
+  constructor(private userService : UserService , private router : Router){
 
   }
 
@@ -48,5 +51,10 @@ export class HomeLayout implements OnInit{
     if (this.isMobile) {
       this.mobileOpen = false;
     }
+  }
+
+  logout(){
+    this.userService.clear();
+    this.router.navigate(['/login'])
   }
 }
