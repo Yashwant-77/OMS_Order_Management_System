@@ -3,6 +3,7 @@ import { Login } from '../feature/auth/pages/login/login';
 import { HomeLayout } from './layouts/home-layout/home-layout';
 import { authGuard } from './guards/auth-guard';
 import { Orders } from '../feature/orders/components/orders/orders';
+import { Admin } from '../feature/admin/pages/admin/admin';
 
 
 export const routes: Routes = [
