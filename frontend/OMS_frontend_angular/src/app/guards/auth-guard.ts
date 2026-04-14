@@ -6,12 +6,13 @@ export const authGuard: CanActivateFn = (route, state) => {
   
   const userService = inject(UserService);
   const router = inject(Router);
+  const token = userService.getToken();
 
-  if(userService.getToken() !== null || userService.getToken() !== ""){
+  if(token && token !== ""){
 
-    const role = route.data['role'] as String;
-    if(role){
-      const match = userService.roleMatch(role)
+    const roles = route.data['role'] as string[];
+    if(roles && roles.length > 0){
+      const match = userService.roleMatch(roles)
       if(match){
         return true;
       }
@@ -20,7 +21,8 @@ export const authGuard: CanActivateFn = (route, state) => {
         return false;
       }
     }
-
+    // If no specific role requirement, allow access for authenticated users
+    return true;
   }
 
   router.navigate(['/login'])

@@ -12,7 +12,7 @@ export class UserService {
   }
 
   public getRole() : string{
-    return JSON.parse(localStorage.getItem("role") || "" );
+    return localStorage.getItem("role") || "";
   }
 
   public setToken(jwtToken:string){
@@ -32,7 +32,7 @@ export class UserService {
   }
 
 
-  public roleMatch(allowedRoles : String){
+  public roleMatch(allowedRoles : string[]){
     let isMatch = false;
 
     for(let i = 0 ; i < allowedRoles.length ; ++i){
