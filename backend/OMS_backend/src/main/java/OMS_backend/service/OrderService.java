@@ -14,6 +14,7 @@ import OMS_backend.repository.CustomerRepository;
 import OMS_backend.repository.ProductRepository;
 import OMS_backend.repository.SalesOrderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,18 +24,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final SalesOrderRepository salesOrderRepository;
-
     private final CustomerRepository customerRepository;
-
     private final ProductRepository productRepository;
 
     // customer operations
     public CustomerResponse createCustomer(CustomerRequest request) {
 
+        log.info("Creating customer. email={}", request.getEmail());
+
         if (customerRepository.existsByEmail(request.getEmail())) {
+            log.warn("Customer creation failed - duplicate email={}", request.getEmail());
             throw new DuplicateResourceException("Customer with this email already exists");
         }
 
@@ -44,55 +47,83 @@ public class OrderService {
         customer.setPhone(request.getPhone());
         customer.setAddress(request.getAddress());
 
-        return mapToCustomerResponse(customerRepository.save(customer));
+        Customer saved = customerRepository.save(customer);
+
+        log.info("Customer created successfully. customerId={}, email={}",
+                saved.getCustomerId(), saved.getEmail());
+
+        return mapToCustomerResponse(saved);
     }
 
-    // read operations
     public List<CustomerResponse> getAllCustomers() {
-        return customerRepository.findAll()
+
+        log.info("Fetching all customers");
+
+        List<CustomerResponse> customers = customerRepository.findAll()
                 .stream()
                 .map(this::mapToCustomerResponse)
                 .collect(Collectors.toList());
+
+        log.info("Fetched {} customers", customers.size());
+
+        return customers;
     }
 
     // order operations
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
 
+        log.info("Creating order for customerId={}, itemsCount={}",
+                request.getCustomerId(), request.getItems().size());
+
         // validate customer exists
         Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + request.getCustomerId()));
+                .orElseThrow(() -> {
+                    log.error("Customer not found. customerId={}", request.getCustomerId());
+                    return new ResourceNotFoundException("Customer not found with id: " + request.getCustomerId());
+                });
 
-        // build order
         SalesOrder order = new SalesOrder();
         order.setCustomer(customer);
         order.setOrderDate(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING);
 
-        // build order items & calculate total
         double total = 0.0;
 
         for (OrderItemRequest itemRequest : request.getItems()) {
 
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId()));
+            log.debug("Processing order item. productId={}, quantity={}",
+                    itemRequest.getProductId(), itemRequest.getQuantity());
 
-            // check stock availability
+            Product product = productRepository.findById(itemRequest.getProductId())
+                    .orElseThrow(() -> {
+                        log.error("Product not found. productId={}", itemRequest.getProductId());
+                        return new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId());
+                    });
+
+            // stock check
             if (product.getQuantityInStock() < itemRequest.getQuantity()) {
+                log.warn("Insufficient stock. productId={}, requested={}, available={}",
+                        product.getProductId(), itemRequest.getQuantity(), product.getQuantityInStock());
+
                 throw new BadRequestException("Insufficient stock for: " + product.getProductName()
                         + ". Available: " + product.getQuantityInStock());
             }
 
             // deduct stock
-            product.setQuantityInStock(product.getQuantityInStock() - itemRequest.getQuantity());
+            int oldStock = product.getQuantityInStock();
+            product.setQuantityInStock(oldStock - itemRequest.getQuantity());
             productRepository.save(product);
+
+            log.debug("Stock updated. productId={}, oldStock={}, newStock={}",
+                    product.getProductId(), oldStock, product.getQuantityInStock());
 
             // build item
             SalesOrderItem item = new SalesOrderItem();
             item.setSalesOrder(order);
             item.setProduct(product);
             item.setQuantity(itemRequest.getQuantity());
-            item.setUnitPrice(product.getUnitPrice()); // snapshot price
+            item.setUnitPrice(product.getUnitPrice());
             order.getItems().add(item);
 
             total += product.getUnitPrice() * itemRequest.getQuantity();
@@ -100,56 +131,104 @@ public class OrderService {
 
         order.setTotalAmount(total);
 
-        return mapToOrderResponse(salesOrderRepository.save(order));
+        SalesOrder savedOrder = salesOrderRepository.save(order);
+
+        log.info("Order created successfully. orderId={}, totalAmount={}",
+                savedOrder.getSalesOrderId(), total);
+
+        return mapToOrderResponse(savedOrder);
     }
 
-    // read operations
     public List<OrderResponse> getAllOrders() {
-        return salesOrderRepository.findAll()
+
+        log.info("Fetching all orders");
+
+        List<OrderResponse> orders = salesOrderRepository.findAll()
                 .stream()
                 .map(this::mapToOrderResponse)
                 .collect(Collectors.toList());
+
+        log.info("Fetched {} orders", orders.size());
+
+        return orders;
     }
 
-    // read single order with details
     public OrderResponse getOrderById(Long id) {
+
+        log.info("Fetching order by id={}", id);
+
         SalesOrder order = salesOrderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Order not found. id={}", id);
+                    return new ResourceNotFoundException("Order not found with id: " + id);
+                });
+
         return mapToOrderResponse(order);
     }
 
-    // update order status (e.g. PENDING → SHIPPED → DELIVERED)
     public OrderResponse updateOrderStatus(Long id, String status) {
-        SalesOrder order = salesOrderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
 
-        order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
-        return mapToOrderResponse(salesOrderRepository.save(order));
+        log.info("Updating order status. orderId={}, newStatus={}", id, status);
+
+        SalesOrder order = salesOrderRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Order not found for status update. id={}", id);
+                    return new ResourceNotFoundException("Order not found with id: " + id);
+                });
+
+        try {
+            order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
+        } catch (IllegalArgumentException ex) {
+            log.error("Invalid order status: {}", status);
+            throw new BadRequestException("Invalid order status: " + status);
+        }
+
+        SalesOrder updated = salesOrderRepository.save(order);
+
+        log.info("Order status updated. orderId={}, status={}", id, updated.getStatus());
+
+        return mapToOrderResponse(updated);
     }
 
-    // cancel order (only if not delivered, and restore stock)
     @Transactional
     public void cancelOrder(Long id) {
+
+        log.info("Cancelling order. orderId={}", id);
+
         SalesOrder order = salesOrderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Order not found for cancellation. id={}", id);
+                    return new ResourceNotFoundException("Order not found with id: " + id);
+                });
 
         if (order.getStatus() == OrderStatus.DELIVERED) {
+            log.warn("Attempt to cancel delivered order. orderId={}", id);
             throw new BadRequestException("Cannot cancel a delivered order");
         }
 
-        // restore stock for each item
+        // restore stock
         for (SalesOrderItem item : order.getItems()) {
+
             Product product = item.getProduct();
-            product.setQuantityInStock(product.getQuantityInStock() + item.getQuantity());
+            int oldStock = product.getQuantityInStock();
+
+            product.setQuantityInStock(oldStock + item.getQuantity());
             productRepository.save(product);
+
+            log.debug("Stock restored. productId={}, restoredQty={}, newStock={}",
+                    product.getProductId(), item.getQuantity(), product.getQuantityInStock());
         }
 
         order.setStatus(OrderStatus.CANCELLED);
         salesOrderRepository.save(order);
+
+        log.info("Order cancelled successfully. orderId={}", id);
     }
 
-    // helper methods to map entities to response DTOs
     private OrderResponse mapToOrderResponse(SalesOrder order) {
+
+        log.debug("Mapping Order to OrderResponse. orderId={}", order.getSalesOrderId());
+
         List<OrderItemResponse> items = order.getItems()
                 .stream()
                 .map(item -> new OrderItemResponse(
@@ -173,8 +252,10 @@ public class OrderService {
         );
     }
 
-    // helper method to map Customer entity to CustomerResponse DTO
     private CustomerResponse mapToCustomerResponse(Customer customer) {
+
+        log.debug("Mapping Customer to CustomerResponse. customerId={}", customer.getCustomerId());
+
         return new CustomerResponse(
                 customer.getCustomerId(),
                 customer.getName(),

@@ -3,6 +3,7 @@ package OMS_backend.controller;
 import OMS_backend.dto.request.CreateInvoiceRequest;
 import OMS_backend.dto.response.InvoiceResponse;
 import OMS_backend.service.InvoiceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class InvoiceController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('FINANCIAL_MANAGER', 'ADMINISTRATOR')")
-    public ResponseEntity<InvoiceResponse> generateInvoice(@RequestBody CreateInvoiceRequest request) {
+    public ResponseEntity<InvoiceResponse> generateInvoice(@Valid @RequestBody CreateInvoiceRequest request) {
         return new ResponseEntity<>(invoiceService.generateInvoice(request), HttpStatus.CREATED);
     }
 

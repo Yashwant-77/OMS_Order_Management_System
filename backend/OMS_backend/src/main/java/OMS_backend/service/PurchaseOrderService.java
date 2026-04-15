@@ -14,6 +14,7 @@ import OMS_backend.repository.ProductRepository;
 import OMS_backend.repository.PurchaseOrderRepository;
 import OMS_backend.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +24,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PurchaseOrderService {
 
     private final PurchaseOrderRepository purchaseOrderRepository;
-
     private final SupplierRepository supplierRepository;
-
     private final ProductRepository productRepository;
 
-    //create supplier
+    // create supplier
     public SupplierResponse createSupplier(SupplierRequest request) {
+
+        log.info("Creating supplier. email={}", request.getEmail());
+
         if (supplierRepository.existsByEmail(request.getEmail())) {
+            log.warn("Supplier creation failed - duplicate email={}", request.getEmail());
             throw new DuplicateResourceException("Supplier with this email already exists");
         }
 
@@ -43,43 +47,65 @@ public class PurchaseOrderService {
         supplier.setPhone(request.getPhone());
         supplier.setAddress(request.getAddress());
 
-        return mapToSupplierResponse(supplierRepository.save(supplier));
+        Supplier saved = supplierRepository.save(supplier);
+
+        log.info("Supplier created successfully. supplierId={}, email={}",
+                saved.getSupplierId(), saved.getEmail());
+
+        return mapToSupplierResponse(saved);
     }
 
     public List<SupplierResponse> getAllSuppliers() {
-        return supplierRepository.findAll()
+
+        log.info("Fetching all suppliers");
+
+        List<SupplierResponse> suppliers = supplierRepository.findAll()
                 .stream()
                 .map(this::mapToSupplierResponse)
                 .collect(Collectors.toList());
+
+        log.info("Fetched {} suppliers", suppliers.size());
+
+        return suppliers;
     }
 
-    // create purchase order + items in one transaction
+    // create purchase order
     @Transactional
     public PurchaseOrderResponse createPurchaseOrder(CreatePurchaseOrderRequest request) {
 
+        log.info("Creating purchase order. supplierId={}, itemsCount={}",
+                request.getSupplierId(), request.getItems().size());
+
         // validate supplier
         Supplier supplier = supplierRepository.findById(request.getSupplierId())
-                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id: " + request.getSupplierId()));
+                .orElseThrow(() -> {
+                    log.error("Supplier not found. supplierId={}", request.getSupplierId());
+                    return new ResourceNotFoundException("Supplier not found with id: " + request.getSupplierId());
+                });
 
-        // build purchase order
         PurchaseOrder po = new PurchaseOrder();
         po.setSupplier(supplier);
         po.setOrderDate(LocalDateTime.now());
         po.setStatus(PurchaseOrderStatus.PENDING);
 
-        // build items + calculate total
         double total = 0.0;
 
         for (PurchaseOrderItemRequest itemRequest : request.getItems()) {
 
+            log.debug("Processing PO item. productId={}, quantity={}, unitPrice={}",
+                    itemRequest.getProductId(), itemRequest.getQuantity(), itemRequest.getUnitPrice());
+
             Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId()));
+                    .orElseThrow(() -> {
+                        log.error("Product not found. productId={}", itemRequest.getProductId());
+                        return new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId());
+                    });
 
             PurchaseOrderItem item = new PurchaseOrderItem();
             item.setPurchaseOrder(po);
             item.setProduct(product);
             item.setQuantity(itemRequest.getQuantity());
-            item.setUnitPrice(itemRequest.getUnitPrice()); // negotiated price
+            item.setUnitPrice(itemRequest.getUnitPrice());
             po.getItems().add(item);
 
             total += itemRequest.getUnitPrice() * itemRequest.getQuantity();
@@ -87,59 +113,112 @@ public class PurchaseOrderService {
 
         po.setTotalAmount(total);
 
-        return mapToPOResponse(purchaseOrderRepository.save(po));
+        PurchaseOrder savedPO = purchaseOrderRepository.save(po);
+
+        log.info("Purchase order created successfully. poId={}, totalAmount={}",
+                savedPO.getPurchaseOrderId(), total);
+
+        return mapToPOResponse(savedPO);
     }
 
     public List<PurchaseOrderResponse> getAllPurchaseOrders() {
-        return purchaseOrderRepository.findAll()
+
+        log.info("Fetching all purchase orders");
+
+        List<PurchaseOrderResponse> list = purchaseOrderRepository.findAll()
                 .stream()
                 .map(this::mapToPOResponse)
                 .collect(Collectors.toList());
+
+        log.info("Fetched {} purchase orders", list.size());
+
+        return list;
     }
 
     public PurchaseOrderResponse getPurchaseOrderById(Long id) {
+
+        log.info("Fetching purchase order by id={}", id);
+
         PurchaseOrder po = purchaseOrderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Purchase order not found. id={}", id);
+                    return new ResourceNotFoundException("Purchase order not found with id: " + id);
+                });
+
         return mapToPOResponse(po);
     }
 
     @Transactional
     public PurchaseOrderResponse updateStatus(Long id, String status) {
 
+        log.info("Updating PO status. poId={}, newStatus={}", id, status);
+
         PurchaseOrder po = purchaseOrderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Purchase order not found for update. id={}", id);
+                    return new ResourceNotFoundException("Purchase order not found with id: " + id);
+                });
 
-        PurchaseOrderStatus newStatus = PurchaseOrderStatus.valueOf(status.toUpperCase());
+        PurchaseOrderStatus newStatus;
+        try {
+            newStatus = PurchaseOrderStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            log.error("Invalid PO status: {}", status);
+            throw new BadRequestException("Invalid purchase order status: " + status);
+        }
 
-        // Key business rule: when order is RECEIVED, update stock automatically
+        // stock update on RECEIVED
         if (newStatus == PurchaseOrderStatus.RECEIVED && po.getStatus() != PurchaseOrderStatus.RECEIVED) {
 
+            log.info("Updating stock for received PO. poId={}", id);
+
             for (PurchaseOrderItem item : po.getItems()) {
+
                 Product product = item.getProduct();
-                product.setQuantityInStock(product.getQuantityInStock() + item.getQuantity());
+                int oldStock = product.getQuantityInStock();
+
+                product.setQuantityInStock(oldStock + item.getQuantity());
                 productRepository.save(product);
+
+                log.debug("Stock increased. productId={}, addedQty={}, newStock={}",
+                        product.getProductId(), item.getQuantity(), product.getQuantityInStock());
             }
         }
 
         po.setStatus(newStatus);
-        return mapToPOResponse(purchaseOrderRepository.save(po));
+        PurchaseOrder updated = purchaseOrderRepository.save(po);
+
+        log.info("PO status updated successfully. poId={}, status={}", id, updated.getStatus());
+
+        return mapToPOResponse(updated);
     }
 
     @Transactional
     public void cancelPurchaseOrder(Long id) {
+
+        log.info("Cancelling purchase order. poId={}", id);
+
         PurchaseOrder po = purchaseOrderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Purchase order not found for cancellation. id={}", id);
+                    return new ResourceNotFoundException("Purchase order not found with id: " + id);
+                });
 
         if (po.getStatus() == PurchaseOrderStatus.RECEIVED) {
+            log.warn("Attempt to cancel received PO. poId={}", id);
             throw new BadRequestException("Cannot cancel an already received purchase order");
         }
 
         po.setStatus(PurchaseOrderStatus.CANCELLED);
         purchaseOrderRepository.save(po);
+
+        log.info("Purchase order cancelled successfully. poId={}", id);
     }
 
-    //mapping PurchaseOrder to PurchaseOrderResponse
     private PurchaseOrderResponse mapToPOResponse(PurchaseOrder po) {
+
+        log.debug("Mapping PurchaseOrder to response. poId={}", po.getPurchaseOrderId());
+
         List<PurchaseOrderItemResponse> items = po.getItems()
                 .stream()
                 .map(item -> new PurchaseOrderItemResponse(
@@ -163,8 +242,10 @@ public class PurchaseOrderService {
         );
     }
 
-    // mapping Supplier to SupplierResponse
     private SupplierResponse mapToSupplierResponse(Supplier supplier) {
+
+        log.debug("Mapping Supplier to response. supplierId={}", supplier.getSupplierId());
+
         return new SupplierResponse(
                 supplier.getSupplierId(),
                 supplier.getName(),
