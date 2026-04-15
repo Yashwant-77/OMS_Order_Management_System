@@ -2,6 +2,8 @@ package OMS_backend.service;
 
 import OMS_backend.dto.request.BOMRequest;
 import OMS_backend.dto.response.BOMResponse;
+import OMS_backend.exception.DuplicateResourceException;
+import OMS_backend.exception.ResourceNotFoundException;
 import OMS_backend.model.Product;
 import OMS_backend.model.ProductBOM;
 import OMS_backend.repository.ProductBOMRepository;
@@ -20,15 +22,16 @@ public class BOMService {
 
     private final ProductRepository productRepository;
 
+    // add component to BOM
     public BOMResponse addComponent(BOMRequest request) {
 
         //validate product exists
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + request.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));
 
         // validate component exists
         Product component = productRepository.findById(request.getComponentId())
-                .orElseThrow(() -> new RuntimeException("Component not found with id: " + request.getComponentId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Component not found with id: " + request.getComponentId()));
 
         // a product cannot be its own component
         if (request.getProductId().equals(request.getComponentId())) {
@@ -38,7 +41,7 @@ public class BOMService {
         // prevent duplicate component in same BOM
         if (productBOMRepository.existsByProduct_ProductIdAndComponent_ProductId(
                 request.getProductId(), request.getComponentId())) {
-            throw new RuntimeException("This component already exists in the BOM for this product");
+            throw new DuplicateResourceException("This component already exists in the BOM for this product");
         }
 
         // save
@@ -50,10 +53,11 @@ public class BOMService {
         return mapToResponse(productBOMRepository.save(bom));
     }
 
+    // get BOM by product id
     public List<BOMResponse> getBOMByProductId(Long productId) {
 
         if (!productRepository.existsById(productId)) {
-            throw new RuntimeException("Product not found with id: " + productId);
+            throw new ResourceNotFoundException("Product not found with id: " + productId);
         }
 
         return productBOMRepository.findByProduct_ProductId(productId)
@@ -62,13 +66,15 @@ public class BOMService {
                 .collect(Collectors.toList());
     }
 
+    // remove component from BOM
     public void removeComponent(Long bomId) {
         if (!productBOMRepository.existsById(bomId)) {
-            throw new RuntimeException("BOM entry not found with id: " + bomId);
+            throw new ResourceNotFoundException("BOM entry not found with id: " + bomId);
         }
         productBOMRepository.deleteById(bomId);
     }
 
+    // mapping ProductBOM to BOMResponse
     private BOMResponse mapToResponse(ProductBOM bom) {
         return new BOMResponse(
                 bom.getProductBomId(),

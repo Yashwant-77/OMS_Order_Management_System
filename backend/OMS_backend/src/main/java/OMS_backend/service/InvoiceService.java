@@ -4,6 +4,9 @@ import OMS_backend.dto.request.CreateInvoiceRequest;
 import OMS_backend.dto.request.RecordPaymentRequest;
 import OMS_backend.dto.response.InvoiceResponse;
 import OMS_backend.dto.response.PaymentResponse;
+import OMS_backend.exception.BadRequestException;
+import OMS_backend.exception.DuplicateResourceException;
+import OMS_backend.exception.ResourceNotFoundException;
 import OMS_backend.model.*;
 import OMS_backend.repository.InvoiceRepository;
 import OMS_backend.repository.PaymentRepository;
@@ -32,16 +35,16 @@ public class InvoiceService {
 
         // validate sales order exists
         SalesOrder salesOrder = salesOrderRepository.findById(request.getSalesOrderId())
-                .orElseThrow(() -> new RuntimeException("Sales order not found with id: " + request.getSalesOrderId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Sales order not found with id: " + request.getSalesOrderId()));
 
         //only confirmed/processing orders can be invoiced
         if (salesOrder.getStatus() == OrderStatus.PENDING || salesOrder.getStatus() == OrderStatus.CANCELLED) {
-            throw new RuntimeException("Cannot generate invoice for order with status: " + salesOrder.getStatus());
+            throw new BadRequestException("Cannot generate invoice for order with status: " + salesOrder.getStatus());
         }
 
         //prevent duplicate invoice
         if (invoiceRepository.existsBySalesOrder_SalesOrderId(request.getSalesOrderId())) {
-            throw new RuntimeException("Invoice already exists for order id: " + request.getSalesOrderId());
+            throw new DuplicateResourceException("Invoice already exists for order id: " + request.getSalesOrderId());
         }
 
         //create invoice
@@ -64,13 +67,13 @@ public class InvoiceService {
 
     public InvoiceResponse getInvoiceById(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
         return mapToInvoiceResponse(invoice);
     }
 
     public InvoiceResponse updateInvoiceStatus(Long id, String status) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 
         invoice.setStatus(InvoiceStatus.valueOf(status.toUpperCase()));
         return mapToInvoiceResponse(invoiceRepository.save(invoice));
@@ -82,17 +85,17 @@ public class InvoiceService {
 
         //validate invoice
         Invoice invoice = invoiceRepository.findById(request.getInvoiceId())
-                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + request.getInvoiceId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + request.getInvoiceId()));
 
         // cannot pay a cancelled invoice
         if (invoice.getStatus() == InvoiceStatus.CANCELLED) {
-            throw new RuntimeException("Cannot record payment for a cancelled invoice");
+            throw new BadRequestException("Cannot record payment for a cancelled invoice");
         }
 
         //cannot overpay
         double outstanding = invoice.getTotalAmount() - invoice.getPaidAmount();
         if (request.getAmount() > outstanding) {
-            throw new RuntimeException("Payment amount ₹" + request.getAmount() + " exceeds outstanding amount ₹" + outstanding);
+            throw new BadRequestException("Payment amount exceeds outstanding amount of ₹" + outstanding);
         }
 
         // record payment
@@ -123,7 +126,7 @@ public class InvoiceService {
     // get all payments for a given invoice
     public List<PaymentResponse> getPaymentsByInvoice(Long invoiceId) {
         if (!invoiceRepository.existsById(invoiceId)) {
-            throw new RuntimeException("Invoice not found with id: " + invoiceId);
+            throw new ResourceNotFoundException("Invoice not found with id: " + invoiceId);
         }
         return paymentRepository.findByInvoice_InvoiceId(invoiceId)
                 .stream()

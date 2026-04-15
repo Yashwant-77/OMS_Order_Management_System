@@ -6,6 +6,9 @@ import OMS_backend.dto.request.SupplierRequest;
 import OMS_backend.dto.response.PurchaseOrderItemResponse;
 import OMS_backend.dto.response.PurchaseOrderResponse;
 import OMS_backend.dto.response.SupplierResponse;
+import OMS_backend.exception.BadRequestException;
+import OMS_backend.exception.DuplicateResourceException;
+import OMS_backend.exception.ResourceNotFoundException;
 import OMS_backend.model.*;
 import OMS_backend.repository.ProductRepository;
 import OMS_backend.repository.PurchaseOrderRepository;
@@ -31,7 +34,7 @@ public class PurchaseOrderService {
     //create supplier
     public SupplierResponse createSupplier(SupplierRequest request) {
         if (supplierRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Supplier with this email already exists");
+            throw new DuplicateResourceException("Supplier with this email already exists");
         }
 
         Supplier supplier = new Supplier();
@@ -56,7 +59,7 @@ public class PurchaseOrderService {
 
         // validate supplier
         Supplier supplier = supplierRepository.findById(request.getSupplierId())
-                .orElseThrow(() -> new RuntimeException("Supplier not found with id: " + request.getSupplierId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id: " + request.getSupplierId()));
 
         // build purchase order
         PurchaseOrder po = new PurchaseOrder();
@@ -70,7 +73,7 @@ public class PurchaseOrderService {
         for (PurchaseOrderItemRequest itemRequest : request.getItems()) {
 
             Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + itemRequest.getProductId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId()));
 
             PurchaseOrderItem item = new PurchaseOrderItem();
             item.setPurchaseOrder(po);
@@ -96,7 +99,7 @@ public class PurchaseOrderService {
 
     public PurchaseOrderResponse getPurchaseOrderById(Long id) {
         PurchaseOrder po = purchaseOrderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Purchase order not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
         return mapToPOResponse(po);
     }
 
@@ -104,14 +107,12 @@ public class PurchaseOrderService {
     public PurchaseOrderResponse updateStatus(Long id, String status) {
 
         PurchaseOrder po = purchaseOrderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Purchase order not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
 
-        PurchaseOrderStatus newStatus =
-                PurchaseOrderStatus.valueOf(status.toUpperCase());
+        PurchaseOrderStatus newStatus = PurchaseOrderStatus.valueOf(status.toUpperCase());
 
         // Key business rule: when order is RECEIVED, update stock automatically
-        if (newStatus == PurchaseOrderStatus.RECEIVED
-                && po.getStatus() != PurchaseOrderStatus.RECEIVED) {
+        if (newStatus == PurchaseOrderStatus.RECEIVED && po.getStatus() != PurchaseOrderStatus.RECEIVED) {
 
             for (PurchaseOrderItem item : po.getItems()) {
                 Product product = item.getProduct();
@@ -127,10 +128,10 @@ public class PurchaseOrderService {
     @Transactional
     public void cancelPurchaseOrder(Long id) {
         PurchaseOrder po = purchaseOrderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Purchase order not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
 
         if (po.getStatus() == PurchaseOrderStatus.RECEIVED) {
-            throw new RuntimeException("Cannot cancel an already received purchase order");
+            throw new BadRequestException("Cannot cancel an already received purchase order");
         }
 
         po.setStatus(PurchaseOrderStatus.CANCELLED);

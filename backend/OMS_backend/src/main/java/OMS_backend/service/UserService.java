@@ -5,6 +5,8 @@ import OMS_backend.dto.request.RegisterRequest;
 import OMS_backend.dto.request.UpdateUserRequest;
 import OMS_backend.dto.response.AuthResponse;
 import OMS_backend.dto.response.UserResponse;
+import OMS_backend.exception.DuplicateResourceException;
+import OMS_backend.exception.ResourceNotFoundException;
 import OMS_backend.model.Role;
 import OMS_backend.model.User;
 import OMS_backend.repository.UserRepository;
@@ -34,7 +36,7 @@ public class UserService {
     public UserResponse registerUser(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new DuplicateResourceException("Email already registered");
         }
 
         User user = new User();
@@ -58,17 +60,14 @@ public class UserService {
         );
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Role selectedRole = Role.valueOf(request.getRole().toUpperCase());
         if (!user.getRole().equals(selectedRole)) {
-            throw new BadCredentialsException(
-                    "You are not registered as " + selectedRole.name()
-            );
+            throw new BadCredentialsException("You are not registered as " + selectedRole.name());
         }
 
-        UserDetails userDetails =
-                userDetailsService.loadUserByUsername(request.getEmail());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtUtil.generateToken(userDetails);
 
         return new AuthResponse(
@@ -89,13 +88,13 @@ public class UserService {
 
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         return mapToResponse(user);
     }
 
     public UserResponse updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         if (request.getName() != null) {
             user.setName(request.getName());
@@ -112,7 +111,7 @@ public class UserService {
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
+            throw new ResourceNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
     }
