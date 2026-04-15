@@ -44,6 +44,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 // make sure we use stateless session; session won't be used to store user's state.
