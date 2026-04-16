@@ -1,0 +1,72 @@
+<div class=" rounded-2xl p-6 bg-gray-50 min-h-[85vh]">
+
+  <!-- Header -->
+  <h1 class="text-xl w-full font-semibold mb-4">Add Product</h1>
+
+  <!-- Form -->
+  <form (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-xl shadow-md w-full">
+
+    <!-- Product Name -->
+   <p>
+  <mat-form-field appearance="fill">
+    <mat-label>Fill form field</mat-label>
+    <input matInput placeholder="Placeholder">
+    <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
+    <mat-hint>Hint</mat-hint>
+  </mat-form-field>
+</p>
+
+    <!-- Description -->
+    <div class="mb-4">
+      <label class="block text-sm mb-1">Description</label>
+      <textarea
+        [(ngModel)]="product.description"
+        name="description"
+        rows="3"
+        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400"
+      ></textarea>
+    </div>
+
+    <!-- Price -->
+    <div class="mb-4">
+      <label class="block text-sm mb-1">Unit Price (₹)</label>
+      <input
+        type="number"
+        [(ngModel)]="product.unitPrice"
+        name="unitPrice"
+        required
+        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400"
+      />
+    </div>
+
+    <!-- Quantity -->
+    <div class="mb-4">
+      <label class="block text-sm mb-1">Quantity in Stock</label>
+      <input
+        type="number"
+        [(ngModel)]="product.quantityInStock"
+        name="quantityInStock"
+        required
+        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400"
+      />
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <button
+        type="submit"
+        class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600">
+        Save Product
+      </button>
+
+      <button
+        type="button"
+        routerLink="/admin"
+        class="border px-4 py-2 rounded-lg hover:bg-gray-100">
+        Cancel
+      </button>
+    </div>
+
+  </form>
+
+</div>

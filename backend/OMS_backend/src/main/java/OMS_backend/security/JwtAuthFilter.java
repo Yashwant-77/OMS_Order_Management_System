@@ -41,33 +41,45 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // Step 3: Extract the token (everything after "Bearer ")
         final String token = authHeader.substring(7);
 
-        // Step 4: Extract username from token
-        final String username = jwtUtil.extractUsername(token);
+        try {
 
-        // Step 5: If username exists and no authentication is set yet in this request
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Step 6: Load user from database
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            // Step 4: Extract username from token
+            final String username = jwtUtil.extractUsername(token);
 
-            // Step 7: Validate token against loaded user
-            if (jwtUtil.isTokenValid(token, userDetails)) {
+            // Step 5: If username exists and no authentication is set yet in this request
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // Step 8: Create authentication object and set it in SecurityContext
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,              // credentials null → already authenticated
-                                userDetails.getAuthorities()
-                        );
+                // Step 6: Load user from database
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                // Step 7: Validate token against loaded user
+                if (jwtUtil.isTokenValid(token, userDetails)) {
 
-                // Step 9: Mark this request as authenticated
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // Step 8: Create authentication object and set it in SecurityContext
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,              // credentials null → already authenticated
+                                    userDetails.getAuthorities()
+                            );
+
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+
+                    // Step 9: Mark this request as authenticated
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+
+        } catch(io.jsonwebtoken.ExpiredJwtException e){
+            // 🔥 THIS IS THE FIX
+            SecurityContextHolder.clearContext(); // 🔥 VERY IMPORTANT
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
+
+            return;
         }
 
         // Step 10: Continue the filter chain
