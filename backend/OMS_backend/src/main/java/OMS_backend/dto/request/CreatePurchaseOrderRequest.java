@@ -10,12 +10,12 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CreateOrderRequest {
+public class CreatePurchaseOrderRequest {
 
-    @NotNull(message = "Customer ID is required")
-    private Long customerId;
+    @NotNull(message = "Supplier ID is required")
+    private Long supplierId;
 
-    @NotEmpty(message = "Order must have at least one item")
+    @NotEmpty(message = "Purchase order must have at least one item")
     @Valid
-    private List<OrderItemRequest> items;
+    private List<PurchaseOrderItemRequest> items;
 }

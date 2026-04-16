@@ -7,9 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CustomerRequest {
+public class SupplierRequest {
 
-    @NotBlank(message = "Customer name is required")
+    @NotBlank(message = "Supplier name is required")
     private String name;
 
     @NotBlank(message = "Email is required")

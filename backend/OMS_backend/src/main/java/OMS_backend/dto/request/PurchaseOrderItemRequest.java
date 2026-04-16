@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderItemRequest {
+public class PurchaseOrderItemRequest {
 
     @NotNull(message = "Product ID is required")
     private Long productId;
@@ -15,4 +15,8 @@ public class OrderItemRequest {
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
+
+    @NotNull(message = "Unit price is required")
+    @Min(value = 0, message = "Unit price cannot be negative")
+    private Double unitPrice;
 }
