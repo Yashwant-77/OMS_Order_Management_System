@@ -9,26 +9,29 @@ import { UserService } from '../../../app/services/user/user.service';
 export class ApiOrders {
   constructor(
     private http: HttpClient,
-    private userService: UserService,
   ) {}
 
-  public callGetAllOrders() {
-    const token = this.userService.getToken();
-
-    const requestHeader = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-    return this.http.get(`${environment.baseUrl}/api/orders` , {headers : requestHeader});
+  public getAllOrders() {
+    return this.http.get(`${environment.baseUrl}/api/orders`);
   }
 
 
-  public callDeleteOrder(orderId:any) {
-    const token = this.userService.getToken();
-
-    const requestHeader = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-    return this.http.delete(`${environment.baseUrl}/api/orders/${orderId}` , {headers : requestHeader});
+  public deleteOrder(orderId:any) {
+    return this.http.delete(`${environment.baseUrl}/api/orders/${orderId}` );
   }
+
+
+  public getAllProducts(){
+    return this.http.get(`${environment.baseUrl}/api/products`);
+  }
+
+  public getAllCustomers(){
+    return this.http.get(`${environment.baseUrl}/api/customers` );
+  }
+
+  public createOrder(payload:any){
+    return this.http.post(`${environment.baseUrl}/api/orders` , payload );
+  }
+
 
 }

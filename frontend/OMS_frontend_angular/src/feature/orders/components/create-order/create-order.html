@@ -1,0 +1,103 @@
+<div class="rounded-2xl p-6 bg-gray-50 min-h-[85vh]">
+
+  <!-- Header -->
+  <h1 class="text-xl w-full font-semibold mb-4">Create Order</h1>
+
+  <!-- Form -->
+  <form (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-xl shadow-md w-full">
+
+    <!-- ================= CUSTOMER ================= -->
+    <h2 class="font-semibold mb-2">Customer</h2>
+
+    <mat-form-field class="w-full" appearance="outline">
+      <mat-label>Select Customer</mat-label>
+      <mat-select [(ngModel)]="order.customerId" name="customerId" required>
+        <mat-option *ngFor="let customer of customers" [value]="customer.customerId">
+          {{ customer.customerName }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Add Customer -->
+    <div class="mb-4">
+      <button type="button"
+        (click)="openCustomerDialog()"
+        class="text-indigo-500 text-sm hover:underline">
+        + Add New Customer
+      </button>
+    </div>
+
+    <!-- ================= PRODUCTS ================= -->
+    <h2 class="font-semibold mb-2">Products</h2>
+
+    <div *ngFor="let item of order.items; let i = index"
+         class="flex  flex-wrap md:flex-nowrap gap-3 mb-3 items-center">
+
+      <!-- Product -->
+      <mat-form-field appearance="outline" class="w-full md:w-1/3">
+        <mat-label>Select Product</mat-label>
+        <mat-select [(ngModel)]="item.productId"
+                    name="product{{i}}"
+                    (selectionChange)="onProductSelect(i)">
+          <mat-option *ngFor="let p of products" [value]="p.productId">
+            {{ p.productName }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Quantity -->
+      <mat-form-field appearance="outline" class="w-full md:w-1/4">
+        <mat-label>Quantity</mat-label>
+        <input matInput type="number"
+               [(ngModel)]="item.quantity"
+               name="qty{{i}}"
+               (input)="calculateTotal()">
+      </mat-form-field>
+
+      <!-- Price -->
+      <mat-form-field appearance="outline" class="w-full md:w-1/4">
+        <mat-label>Price</mat-label>
+        <input matInput type="number"
+               [(ngModel)]="item.unitPrice"
+               name="price{{i}}"
+               readonly>
+      </mat-form-field>
+
+      <!-- Remove -->
+   <button type="button"
+  (click)="removeItem(i)"
+  class="h-10 w-10 px-5 flex items-center justify-center rounded-full hover:bg-red-100 text-red-500 transition">
+  <i class="fas fa-trash-can"></i>
+</button>
+
+    </div>
+
+    <!-- Add Product -->
+    <button type="button"
+      (click)="addItem()"
+      class="bg-gray-100 px-3 py-1 rounded mb-4 hover:bg-gray-200">
+      + Add Product
+    </button>
+
+    <!-- ================= TOTAL ================= -->
+    <div class="text-right font-semibold text-lg mb-4">
+      Total: ₹{{ order.totalAmount }}
+    </div>
+
+    <!-- ================= ACTIONS ================= -->
+    <div class="flex gap-3">
+      <button type="submit"
+        class="bg-[#3f51b5] hover:bg-[#5c6bc0] text-white px-4 py-2 rounded-lg transition">
+        Create Order
+      </button>
+
+      <button type="button"
+        routerLink="/admin"
+        class="border px-4 py-2 rounded-lg hover:bg-gray-100">
+        Cancel
+      </button>
+    </div>
+
+  </form>
+
+</div>

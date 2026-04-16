@@ -16,7 +16,7 @@ export class Orders {
   orders: any[] = [];
 
   constructor(
-    private apiOrders: ApiOrders,
+    private apiOrdersService: ApiOrders,
     private router: Router,
     private userService: UserService,
   ) {}
@@ -69,7 +69,7 @@ applyFilters() {
   }
 
   getOrders() {
-    // this.apiOrders.callGetAllOrders().subscribe({
+    // this.apiOrdersService.getAllOrders().subscribe({
     //   next: (res: any) => {
     //     this.orders = res;
     //     console.log('Orders:', this.orders);
@@ -85,20 +85,20 @@ applyFilters() {
   }
 
   deleteOrder(orderId: any) {
-    console.log('Delete', orderId);
-    this.apiOrders.callDeleteOrder(orderId).subscribe({
-      next: (res: any) => {
+    // console.log('Delete', orderId);
+    // this.apiOrdersService.deleteOrder(orderId).subscribe({
+    //   next: (res: any) => {
         
-      },
-      error: (err) => {
-        console.error('Error in deleting order !', err);
-        if (err.status === 401) {
-          this.userService.clear();
-          this.router.navigate(['/login']);
-        }
+    //   },
+    //   error: (err) => {
+    //     console.error('Error in deleting order !', err);
+    //     if (err.status === 401) {
+    //       this.userService.clear();
+    //       this.router.navigate(['/login']);
+    //     }
         
-      },
-    });
+    //   },
+    // });
   }
 
 

@@ -5,7 +5,7 @@ import { authGuard } from './guards/auth-guard';
 import { Orders } from '../feature/orders/components/orders/orders';
 import { Admin } from '../feature/admin/pages/admin/admin';
 import { Forbidden } from './shared/components/forbidden/forbidden';
-import { AddProduct } from '../feature/orders/components/add-product/add-product';
+import { CreateOrder } from '../feature/orders/components/create-order/create-order';
 
 
 export const routes: Routes = [
@@ -33,7 +33,7 @@ export const routes: Routes = [
              },
             { 
                 path: 'add-product',
-                component: AddProduct ,
+                component: CreateOrder ,
                 canActivate : [authGuard] ,
                 data : { role : ["ADMINISTRATOR" , "SALES_REPRESENTATIVE"]},
 
