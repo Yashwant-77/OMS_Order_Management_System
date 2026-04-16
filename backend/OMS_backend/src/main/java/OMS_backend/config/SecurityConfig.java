@@ -43,12 +43,13 @@ public class SecurityConfig {
                 // set permissions on endpoints
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
+                                "/swagger-ui/index.html",
                                 "/v3/api-docs/**",
-                                "/v3/api-docs"
+                                "/v3/api-docs",
+                                "/webjars/**"            // swagger UI loads static assets from here
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
