@@ -2,8 +2,8 @@
   <div class="h-full bg-white">
     <!-- SIDENAV -->
     <aside [ngClass]="{
-        'w-55!': !isCollapsed,
-        'w-18': isCollapsed,
+        'w-[220px]!': !isCollapsed,
+        'w-[72px]!': isCollapsed,
         'translate-x-0 shadow-xl z-20': mobileOpen,
         '-translate-x-full': !mobileOpen
       }" class="absolute md:relative md:translate-x-0 top-0 bottom-0 left-0
@@ -68,10 +68,10 @@
 
   </div>
 
-  <div class="flex flex-col flex-1 w-full bg-gray-300">
+  <div class="flex flex-col flex-1 w-full bg-gray-300 min-w-0">
 
     <!-- NAVBAR -->
-    <nav class="h-14 bg-[#3f51b5] text-white flex items-center justify-between px-2 z-20 shrink-0">
+    <nav class="h-14 bg-[#3f51b5] text-white flex items-center justify-between px-2 z-20 shrink-0 min-w-0">
 
       <!-- LEFT -->
       <div class="flex items-center gap-2">

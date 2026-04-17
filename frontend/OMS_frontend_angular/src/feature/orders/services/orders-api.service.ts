@@ -33,5 +33,9 @@ export class ApiOrders {
     return this.http.post(`${environment.baseUrl}/api/orders` , payload );
   }
 
+  public addNewCustomer(customer:any){
+    return this.http.post(`${environment.baseUrl}/api/customers` , customer);
+  }
+
 
 }

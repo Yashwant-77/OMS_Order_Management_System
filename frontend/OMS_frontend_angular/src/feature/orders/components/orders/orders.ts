@@ -69,36 +69,36 @@ applyFilters() {
   }
 
   getOrders() {
-    // this.apiOrdersService.getAllOrders().subscribe({
-    //   next: (res: any) => {
-    //     this.orders = res;
-    //     console.log('Orders:', this.orders);
-    //   },
-    //   error: (err) => {
-    //     console.error('Error fetching orders', err);
-    //     if (err.status === 401) {
-    //       this.userService.clear();
-    //       this.router.navigate(['/login']);
-    //     }
-    //   },
-    // });
+    this.apiOrdersService.getAllOrders().subscribe({
+      next: (res: any) => {
+        this.orders = res;
+        console.log('Orders:', this.orders);
+      },
+      error: (err) => {
+        console.error('Error fetching orders', err);
+        if (err.status === 401) {
+          this.userService.clear();
+          this.router.navigate(['/login']);
+        }
+      },
+    });
   }
 
   deleteOrder(orderId: any) {
-    // console.log('Delete', orderId);
-    // this.apiOrdersService.deleteOrder(orderId).subscribe({
-    //   next: (res: any) => {
+    console.log('Delete', orderId);
+    this.apiOrdersService.deleteOrder(orderId).subscribe({
+      next: (res: any) => {
         
-    //   },
-    //   error: (err) => {
-    //     console.error('Error in deleting order !', err);
-    //     if (err.status === 401) {
-    //       this.userService.clear();
-    //       this.router.navigate(['/login']);
-    //     }
+      },
+      error: (err) => {
+        console.error('Error in deleting order !', err);
+        if (err.status === 401) {
+          this.userService.clear();
+          this.router.navigate(['/login']);
+        }
         
-    //   },
-    // });
+      },
+    });
   }
 
 

@@ -4,16 +4,16 @@
   <h1 class="text-xl w-full font-semibold mb-4">Create Order</h1>
 
   <!-- Form -->
-  <form (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-xl shadow-md w-full">
+  <form #orderForm="ngForm" (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-xl shadow-md w-full">
 
     <!-- ================= CUSTOMER ================= -->
     <h2 class="font-semibold mb-2">Customer</h2>
 
     <mat-form-field class="w-full" appearance="outline">
       <mat-label>Select Customer</mat-label>
-      <mat-select [(ngModel)]="order.customerId" name="customerId" required>
-        <mat-option *ngFor="let customer of customers" [value]="customer.customerId">
-          {{ customer.customerName }}
+      <mat-select [(ngModel)]="order.customerId" name="customerId" >
+        <mat-option class="text-black!" *ngFor="let customer of customers" [value]="customer.customerId">
+          {{ customer.name }}
         </mat-option>
       </mat-select>
     </mat-form-field>

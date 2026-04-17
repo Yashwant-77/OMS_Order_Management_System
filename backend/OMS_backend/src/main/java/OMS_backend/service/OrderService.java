@@ -150,6 +150,8 @@ public class OrderService {
 
         log.info("Fetched {} orders", orders.size());
 
+        System.out.println(orders.size());
+
         return orders;
     }
 
