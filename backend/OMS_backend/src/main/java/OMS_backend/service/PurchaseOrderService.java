@@ -121,6 +121,7 @@ public class PurchaseOrderService {
         return mapToPOResponse(savedPO);
     }
 
+    @Transactional(readOnly = true)
     public List<PurchaseOrderResponse> getAllPurchaseOrders() {
 
         log.info("Fetching all purchase orders");
@@ -135,6 +136,7 @@ public class PurchaseOrderService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     public PurchaseOrderResponse getPurchaseOrderById(Long id) {
 
         log.info("Fetching purchase order by id={}", id);
