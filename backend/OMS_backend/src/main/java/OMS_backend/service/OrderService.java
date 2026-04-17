@@ -139,6 +139,7 @@ public class OrderService {
         return mapToOrderResponse(savedOrder);
     }
 
+    @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
 
         log.info("Fetching all orders");
@@ -155,6 +156,7 @@ public class OrderService {
         return orders;
     }
 
+    @Transactional(readOnly = true)
     public OrderResponse getOrderById(Long id) {
 
         log.info("Fetching order by id={}", id);

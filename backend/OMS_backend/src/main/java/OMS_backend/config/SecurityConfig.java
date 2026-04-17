@@ -44,6 +44,7 @@ public class SecurityConfig {
                 // set permissions on endpoints
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
