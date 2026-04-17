@@ -12,6 +12,7 @@ import OMS_backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,6 +75,7 @@ public class BOMService {
         return mapToResponse(savedBom);
     }
 
+    @Transactional(readOnly = true)
     public List<BOMResponse> getBOMByProductId(Long productId) {
 
         log.info("Fetching BOM for productId={}", productId);
@@ -94,6 +96,7 @@ public class BOMService {
         return response;
     }
 
+    @Transactional
     public void removeComponent(Long bomId) {
 
         log.info("Request received to delete BOM entry. bomId={}", bomId);
