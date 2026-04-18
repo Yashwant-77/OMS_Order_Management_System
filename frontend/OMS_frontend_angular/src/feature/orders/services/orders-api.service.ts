@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders , HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { UserService } from '../../../app/services/user/user.service';
@@ -11,8 +11,20 @@ export class ApiOrders {
     private http: HttpClient,
   ) {}
 
-  public getAllOrders() {
-    return this.http.get(`${environment.baseUrl}/api/orders`);
+  public getFilteredOrders(page : number , size:number , status? : string , search? : string ) {
+     let params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    if (search) {
+      params = params.set('search', search);
+    }
+
+    return this.http.get<any>(`${environment.baseUrl}/api/orders/filteredOrders`, { params });
   }
 
 

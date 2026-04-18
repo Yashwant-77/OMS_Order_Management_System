@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,6 +39,19 @@ public class OrderController {
     @PreAuthorize("hasAnyAuthority('SALES_REPRESENTATIVE', 'ADMINISTRATOR'," + "'BUSINESS_ANALYST', 'PRODUCT_MANAGER')")
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
         return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get all orders", description = "Returns all sales orders." +
+            " SALES_REPRESENTATIVE, ADMINISTRATOR, BUSINESS_ANALYST or PRODUCT_MANAGER.")
+    @GetMapping("/filteredOrders")
+    @PreAuthorize("hasAnyAuthority('SALES_REPRESENTATIVE', 'ADMINISTRATOR'," + "'BUSINESS_ANALYST', 'PRODUCT_MANAGER')")
+    public Page<OrderResponse> getFilteredOrders(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search
+    ) {
+        return orderService.getFilteredOrders(page, size, status, search);
     }
 
     @Operation(summary = "Get order by ID", description = "Returns a single sales order by ID. " +

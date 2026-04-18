@@ -21,7 +21,17 @@
       </div>
 
       <ul class="flex flex-col gap-0.5 p-2 mt-1 list-none border-r bg-white  h-full border-gray-200 ">
-        <li routerLink="/orders" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" (click)="onNavClick()"
+        
+
+        <li routerLink="/dashboard" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" 
+          class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
+          <i class="fas fa-gauge text-[18px] shrink-0 w-6 text-center"></i>
+          <span class="text-sm  overflow-hidden transition-all duration-240 " [style.width]="isCollapsed ? '0' : 'auto'"
+            [style.opacity]="isCollapsed ? '0' : '1'">Dashboard</span>
+        </li>
+
+
+        <li routerLink="/sales-orders" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" 
           class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
           <i class="fas fa-shopping-cart text-[18px] shrink-0 w-6 text-center"></i>
           <span class="text-sm  overflow-hidden transition-all duration-240 " [style.width]="isCollapsed ? '0' : 'auto'"
@@ -29,32 +39,38 @@
         </li>
 
 
-        <li routerLink="/bom" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" (click)="onNavClick()"
+        <li routerLink="/bom" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" 
           class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
           <i class="fas fa-boxes text-[18px] shrink-0 w-6 text-center"></i>
           <span class="text-sm overflow-hidden transition-all duration-240" [style.width]="isCollapsed ? '0' : 'auto'"
             [style.opacity]="isCollapsed ? '0' : '1'">BOM</span>
         </li>
 
-        <li routerLink="/purchase" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" (click)="onNavClick()"
+        <li routerLink="/purchase-orders" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" 
           class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
           <i class="fas fa-truck text-[18px] shrink-0 w-6 text-center"></i>
           <span class="text-sm overflow-hidden transition-all duration-240 " [style.width]="isCollapsed ? '0' : 'auto'"
             [style.opacity]="isCollapsed ? '0' : '1'">Purchase</span>
         </li>
 
-        <li routerLink="/invoice" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" (click)="onNavClick()"
+        <li routerLink="/invoice" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" 
           class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
           <i class="fas fa-file-invoice text-[18px] shrink-0 w-6 text-center"></i>
           <span class="text-sm overflow-hidden transition-all duration-240" [style.width]="isCollapsed ? '0' : 'auto'"
             [style.opacity]="isCollapsed ? '0' : '1'">Invoice</span>
         </li>
 
-        <li routerLink="/reports" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" (click)="onNavClick()"
+        <li routerLink="/reports" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" 
           class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
           <i class="fas fa-chart-bar text-[18px] shrink-0 w-6 text-center"></i>
           <span class="text-sm overflow-hidden transition-all duration-240" [style.width]="isCollapsed ? '0' : 'auto'"
             [style.opacity]="isCollapsed ? '0' : '1'">Reports</span>
+        </li>
+        <li routerLink="/users" routerLinkActive="bg-[#e8eaf6] text-[#3f51b5] font-medium" 
+          class="flex items-center gap-3 h-12 px-3 rounded-lg cursor-pointer text-gray-600 hover:bg-[#e8eaf6] hover:text-[#3f51b5] transition-colors overflow-hidden whitespace-nowrap">
+          <i class="fas fa-user text-[18px] shrink-0 w-6 text-center"></i>
+          <span class="text-sm overflow-hidden transition-all duration-240" [style.width]="isCollapsed ? '0' : 'auto'"
+            [style.opacity]="isCollapsed ? '0' : '1'">Users</span>
         </li>
 
       </ul>
@@ -79,8 +95,11 @@
           class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 transition-colors cursor-pointer border-none bg-transparent text-white">
           <i class="fas fa-bars text-lg"></i>
         </button>
-        <i class="fas fa-box-open text-base hidden sm:block"></i>
-        <span class="text-base font-semibold">OMS | <strong>ABC Ltd.</strong></span>
+        <div routerLink="/dashboard" class="flex items-center gap-2 cursor-pointer">
+          <i class="fas fa-box-open text-base hidden sm:block"></i>
+          <span class="text-base font-semibold">OMS | <strong>ABC Ltd.</strong></span>
+
+        </div>
       </div>
 
       <!-- RIGHT -->
@@ -96,8 +115,8 @@
         <mat-menu #menu="matMenu" class="bg-gray-200!">
           <mat-list role="list">
             <mat-list-item class role="listitem">
-              <button class="flex gap-2 items-center border-2 px-2 py-1 bg-[#3f51b5]  cursor-pointer text-white rounded-lg">
-                <i class="fas fa-user-circle text-lg"></i>
+              <button routerLink="/profile" class="flex gap-2 items-center border-2 px-2 py-1 bg-[#3f51b5]  cursor-pointer text-white rounded-lg">
+                <i class="fas fa-user-circle "></i>
                 <span>Profile</span>
 
               </button>

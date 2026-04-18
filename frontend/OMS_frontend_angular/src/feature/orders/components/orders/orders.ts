@@ -5,10 +5,13 @@ import { ApiOrders } from '../../services/orders-api.service';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../../../app/services/user/user.service';
 import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar , MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-orders',
-  imports: [MatPaginatorModule, CommonModule , FormsModule , RouterModule],
+  imports: [MatPaginatorModule, CommonModule, FormsModule, RouterModule, MatProgressSpinnerModule , MatSnackBarModule],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
@@ -16,78 +19,35 @@ export class Orders {
   orders: any[] = [];
 
   constructor(
+    private snack : MatSnackBar,
     private apiOrdersService: ApiOrders,
     private router: Router,
     private userService: UserService,
+    private cd: ChangeDetectorRef,
   ) {}
 
-searchText: string = '';
-isDropdownOpen: boolean = false;
-selectedStatus: string = '';
+  statuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
-statuses = [
-  'PENDING',
-  'CONFIRMED',
-  'PROCESSING',
-  'SHIPPED',
-  'DELIVERED',
-  'CANCELLED'
-];
-
-filteredOrdersList: any[] = [];
-
-
-
-toggleDropdown() {
-  this.isDropdownOpen = !this.isDropdownOpen;
-}
-
-applyStatusFilter(status: string) {
-  this.selectedStatus = status;
-  this.isDropdownOpen = false;
-  this.applyFilters();
-}
-
-applyFilters() {
-  this.filteredOrdersList = this.orders.filter(order => {
-
-    const matchesSearch =
-      !this.searchText ||
-      order.customerName?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-      order.salesOrderId?.toString().includes(this.searchText);
-
-    const matchesStatus =
-      !this.selectedStatus || order.status === this.selectedStatus;
-
-    return matchesSearch && matchesStatus;
-  });
-}
-
-  ngOnInit(): void {
-    this.getOrders();
-    this.filteredOrdersList = this.orders;
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  getOrders() {
-    this.apiOrdersService.getAllOrders().subscribe({
-      next: (res: any) => {
-        this.orders = res;
-        console.log('Orders:', this.orders);
-      },
-      error: (err) => {
-        console.error('Error fetching orders', err);
-        if (err.status === 401) {
-          this.userService.clear();
-          this.router.navigate(['/login']);
-        }
-      },
-    });
+  clearFilters() {
+    this.searchText = '';
+    this.selectedStatus = '';
   }
 
   deleteOrder(orderId: any) {
     console.log('Delete', orderId);
     this.apiOrdersService.deleteOrder(orderId).subscribe({
       next: (res: any) => {
+        console.log("sucessfully deleted the order ");
+
+         this.snack.open('✅ Order deleted successfully!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
         
       },
       error: (err) => {
@@ -96,11 +56,9 @@ applyFilters() {
           this.userService.clear();
           this.router.navigate(['/login']);
         }
-        
       },
     });
   }
-
 
   editOrder(order: any) {
     console.log('Edit', order);
@@ -112,27 +70,60 @@ applyFilters() {
     this.activeMenu = this.activeMenu === id ? null : id;
   }
 
-  
-
-  
-
   // pagination
-  currentPage = 1;
+  currentPage = 0;
   itemsPerPage = 10;
+  totalPages = 0;
 
-  get paginatedOrders() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-  return this.filteredOrdersList.slice(start, start + this.itemsPerPage);
+  paginatedOrders: any[] = [];
+
+  searchText: string = '';
+  isDropdownOpen: boolean = false;
+  selectedStatus: string = '';
+
+  ngOnInit(): void {
+    this.getOrders();
   }
 
-  get totalPages() {
-    return Math.ceil(this.filteredOrdersList.length / this.itemsPerPage);
+  getOrders() {
+     this.isLoading = true;
+    this.apiOrdersService
+      .getFilteredOrders(this.currentPage, this.itemsPerPage, this.selectedStatus, this.searchText)
+      .subscribe({
+        next: (res: any) => {
+          console.log(res);
+
+          this.paginatedOrders = [...res.content];
+          this.totalPages = res.totalPages;
+          this.isLoading = false;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching orders', err);
+          if (err.status === 401) {
+            this.userService.clear();
+            this.router.navigate(['/login']);
+            this.isLoading = false;
+          }
+        },
+      });
+  }
+
+  applyFilters() {
+    this.currentPage = 0;
+    this.getOrders();
+  }
+
+  applyStatusFilter(status: string) {
+    this.selectedStatus = status;
+    this.isDropdownOpen = false;
+    this.applyFilters();
   }
 
   get visiblePages() {
     const pages = [];
-    const start = Math.max(1, this.currentPage - 2);
-    const end = Math.min(this.totalPages, this.currentPage + 2);
+    const start = Math.max(0, this.currentPage - 2);
+    const end = Math.min(this.totalPages - 1, this.currentPage + 2);
 
     for (let i = start; i <= end; i++) {
       pages.push(i);
@@ -142,27 +133,14 @@ applyFilters() {
   }
 
   changePage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
+    if (page >= 0 && page < this.totalPages) {
       this.currentPage = page;
+      this.getOrders(); // fetch new page
     }
   }
 
 
+  // ==================== SPINNER LOGI =====================================
 
-
-
-
-
-
-
-
-
-
-
-  clearFilters() {
-  this.searchText = '';
-  this.selectedStatus = '';
-  this.filteredOrdersList = [...this.orders];
-  this.currentPage = 1;
-}
+  isLoading = false;
 }

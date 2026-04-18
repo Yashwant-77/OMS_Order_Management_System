@@ -1,30 +1,35 @@
-
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, HostListener } from '@angular/core'
-import { Router, RouterOutlet } from '@angular/router';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { UserService } from '../../services/user/user.service';
 import { MatButtonModule } from '@angular/material/button';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatListModule} from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatListModule } from '@angular/material/list';
+
+
 
 @Component({
   selector: 'app-home-layout',
-  imports: [CommonModule , RouterOutlet , MatButtonModule , MatMenuModule , MatListModule],
+  imports: [CommonModule, RouterOutlet, MatButtonModule, MatMenuModule, MatListModule , RouterModule],
   templateUrl: './home-layout.html',
   styleUrl: './home-layout.css',
 })
-export class HomeLayout implements OnInit{
+export class HomeLayout implements OnInit {
+  constructor(
+    private userService: UserService,
+    private router: Router,
+  ) {}
 
-  constructor(private userService : UserService , private router : Router){
-
-  }
+ 
 
   isCollapsed = false;
   mobileOpen = false;
   isMobile = false;
+  role = '';
 
   ngOnInit() {
     this.checkScreen();
+    this.role = this.userService.getRole();
   }
 
   @HostListener('window:resize')
@@ -53,8 +58,10 @@ export class HomeLayout implements OnInit{
     }
   }
 
-  logout(){
+  logout() {
     this.userService.clear();
-    this.router.navigate(['/login'])
+    this.router.navigate(['/login']);
   }
+
+ 
 }

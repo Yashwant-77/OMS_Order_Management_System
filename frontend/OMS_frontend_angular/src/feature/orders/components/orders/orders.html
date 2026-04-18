@@ -9,7 +9,8 @@
       </div>
 
       <div class="flex gap-3">
-        <button routerLink="../add-product" class="bg-[#3f51b5] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#5c6bc0]">
+        <button routerLink="../add-product"
+          class=" text-white px-4 py-2 rounded-lg flex items-center gap-2 bg-[#3f51b5] hover:bg-[#5c6bc0]">
           <i class="fas fa-plus text-md"></i>
           Add Product
         </button>
@@ -65,43 +66,52 @@
 
 
     <!-- Table -->
-    <div class="bg-white rounded-xl shadow-sm max-h-[55vh] overflow-auto">
-      <table class="min-w-225 w-full text-left">
+    <div class="relative">
+      <!-- spinner overlay -->
+      <div *ngIf="isLoading" class="flex justify-center items-center h-60">
+        <mat-progress-spinner mode="indeterminate" diameter="50">
+        </mat-progress-spinner>
+      </div>
 
-        <!-- Table Head -->
-        <thead class="bg-gray-100 text-gray-600 text-sm sticky top-0">
-          <tr>
+      <!-- table  -->
+      <div *ngIf="!isLoading" class="bg-white rounded-xl shadow-sm max-h-[55vh] overflow-auto">
 
-            <th class="p-4">OrderId</th>
-            <th class="p-4">Customer Name</th>
-            <th class="p-4">Total Amount</th>
-            <th class="p-4">Created At</th>
-            <th class="p-4">Status</th>
-            <th class="p-4">Options</th>
-          </tr>
-        </thead>
+        <table class="min-w-225 w-full text-left">
 
-        <!-- Table Body -->
-        <tbody>
-          <tr *ngFor="let order of paginatedOrders" class="border-t hover:bg-gray-50">
+          <!-- Table Head -->
+          <thead class="bg-gray-100 text-gray-600 text-sm sticky top-0">
+            <tr>
 
-            <!-- checkbox -->
+              <th class="p-4">OrderId</th>
+              <th class="p-4">Customer Name</th>
+              <th class="p-4">Total Amount</th>
+              <th class="p-4">Created At</th>
+              <th class="p-4">Status</th>
+              <th class="p-4">Options</th>
+            </tr>
+          </thead>
+
+          <!-- Table Body -->
+          <tbody>
+            <tr *ngFor="let order of paginatedOrders" class="border-t hover:bg-gray-50">
+
+              <!-- checkbox -->
 
 
-            <td class="p-4">{{order.salesOrderId}}</td>
-            <td class="p-4">{{order.customerName}}</td>
-            <td class="p-4">₹{{order.totalAmount}}</td>
+              <td class="p-4">{{order.salesOrderId}}</td>
+              <td class="p-4">{{order.customerName}}</td>
+              <td class="p-4">₹{{order.totalAmount}}</td>
 
 
-            <!-- formatted date -->
-            <td class="p-4">
-              {{order.orderDate | date:'dd MMM yyyy'}}
-            </td>
+              <!-- formatted date -->
+              <td class="p-4">
+                {{order.orderDate | date:'dd MMM yyyy'}}
+              </td>
 
-            <!-- status -->
+              <!-- status -->
 
-            <td class="p-4">
-              <span [ngClass]="{
+              <td class="p-4">
+                <span [ngClass]="{
       'bg-yellow-100 text-yellow-600': order.status === 'PENDING',
       'bg-blue-100 text-blue-600': order.status === 'CONFIRMED',
       'bg-purple-100 text-purple-600': order.status === 'PROCESSING',
@@ -109,33 +119,39 @@
       'bg-green-100 text-green-600': order.status === 'DELIVERED',
       'bg-red-100 text-red-600': order.status === 'CANCELLED'
     }" class="px-3 py-1 rounded-full text-sm font-medium">
-                {{ order.status }}
-              </span>
-            </td>
+                  {{ order.status }}
+                </span>
+              </td>
 
 
 
-            <!-- options -->
-            <td class="p-4 flex gap-3">
+              <!-- options -->
+              <td class="p-4 flex gap-3">
 
-              <!-- Edit -->
-              <button (click)="editOrder(order)" class="text-blue-500 hover:text-blue-700">
-                <i class="fas fa-edit"></i>
-              </button>
+                <!-- Edit -->
+                <button (click)="editOrder(order)" class="text-blue-500 hover:text-blue-700">
+                  <i class="fas fa-edit"></i>
+                </button>
 
-              <!-- Delete -->
-              <button (click)="deleteOrder(order.salesOrderId)" class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash"></i>
-              </button>
+                <!-- Delete -->
+                <button (click)="deleteOrder(order.salesOrderId)" class="text-red-500 hover:text-red-700">
+                  <i class="fas fa-trash"></i>
+                </button>
 
-            </td>
+              </td>
 
 
 
-          </tr>
-        </tbody>
-      </table>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+
     </div>
+
+
+
 
 
     <!-- pagination -->
@@ -143,28 +159,28 @@
 
       <!-- LEFT -->
       <p class="text-sm text-gray-500">
-        Page {{currentPage}} of {{totalPages}}
+        Page {{currentPage+1}} of {{totalPages}}
       </p>
 
       <!-- RIGHT -->
       <div class="flex flex-wrap justify-center gap-2">
 
         <!-- Prev -->
-        <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+        <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 0"
           class="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50">
           Prev
         </button>
 
         <!-- Page Numbers (limited display) -->
         <button *ngFor="let page of visiblePages" (click)="changePage(page)" [ngClass]="{
-        'bg-indigo-500 text-white': currentPage === page,
+        'bg-[#3f51b5] text-white': currentPage === page,
         'bg-gray-100': currentPage !== page
-      }" class="px-3 py-1 rounded hover:bg-indigo-400">
-          {{page}}
+      }" class="px-3 py-1 rounded  hover:bg-[#5c6bc0]">
+          {{page+1}}
         </button>
 
         <!-- Next -->
-        <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages"
+        <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages-1"
           class="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50">
           Next
         </button>

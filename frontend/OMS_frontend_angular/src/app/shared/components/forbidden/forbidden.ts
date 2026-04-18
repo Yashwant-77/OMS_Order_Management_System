@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-forbidden',
-  imports: [RouterModule , MatToolbar],
+  imports: [RouterModule],
   templateUrl: './forbidden.html',
   styleUrl: './forbidden.css',
 })

@@ -5,11 +5,13 @@ import OMS_backend.model.SalesOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 
 import java.util.List;
 
 @Repository
-public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long> {
+public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long> , JpaSpecificationExecutor<SalesOrder> {
 
     List<SalesOrder> findByCustomer_CustomerId(Long customerId);
 

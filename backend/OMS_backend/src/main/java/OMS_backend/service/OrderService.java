@@ -13,12 +13,19 @@ import OMS_backend.model.*;
 import OMS_backend.repository.CustomerRepository;
 import OMS_backend.repository.ProductRepository;
 import OMS_backend.repository.SalesOrderRepository;
+import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -154,6 +161,38 @@ public class OrderService {
         System.out.println(orders.size());
 
         return orders;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getFilteredOrders(int page, int size, String status, String search) {
+
+        log.info("Fetching filtered orders");
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Specification<SalesOrder> spec = (root, query, cb) -> {
+
+            Join<SalesOrder, Customer> customer = root.join("customer");
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (status != null && !status.trim().isEmpty()) {
+                predicates.add(cb.equal(root.get("status"), OrderStatus.valueOf(status)));
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                predicates.add(
+                        cb.like(
+                                cb.lower(customer.get("name")),
+                                "%" + search.toLowerCase() + "%"
+                        )
+                );
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return salesOrderRepository.findAll(spec, pageable)
+                .map(this::mapToOrderResponse);
     }
 
     @Transactional(readOnly = true)
