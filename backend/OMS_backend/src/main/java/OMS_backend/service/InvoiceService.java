@@ -71,6 +71,7 @@ public class InvoiceService {
         return mapToInvoiceResponse(savedInvoice);
     }
 
+    @Transactional(readOnly = true)
     public List<InvoiceResponse> getAllInvoices() {
 
         log.info("Fetching all invoices");
@@ -85,6 +86,7 @@ public class InvoiceService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public InvoiceResponse getInvoiceById(Long id) {
 
         log.info("Fetching invoice by id={}", id);
@@ -98,6 +100,7 @@ public class InvoiceService {
         return mapToInvoiceResponse(invoice);
     }
 
+    @Transactional
     public InvoiceResponse updateInvoiceStatus(Long id, String status) {
 
         log.info("Updating invoice status. id={}, newStatus={}", id, status);
@@ -184,6 +187,7 @@ public class InvoiceService {
         return mapToPaymentResponse(savedPayment);
     }
 
+    @Transactional(readOnly = true)
     public List<PaymentResponse> getPaymentsByInvoice(Long invoiceId) {
 
         log.info("Fetching payments for invoiceId={}", invoiceId);

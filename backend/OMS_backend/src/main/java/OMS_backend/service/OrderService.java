@@ -209,7 +209,7 @@ public class OrderService {
         return mapToOrderResponse(order);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderResponse updateOrderStatus(Long id, String status) {
 
         log.info("Updating order status. orderId={}, newStatus={}", id, status);
