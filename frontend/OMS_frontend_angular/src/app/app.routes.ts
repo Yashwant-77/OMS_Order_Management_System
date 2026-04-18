@@ -12,6 +12,7 @@ import { Purchase } from '../feature/purchase-orders/components/purchase/purchas
 import { Reports } from '../feature/reports/components/reports/reports';
 import { Users } from '../feature/users/components/users/users';
 import { Profile } from './shared/components/profile/profile';
+import { EditOrder } from '../feature/orders/components/edit-order/edit-order';
 
 export const routes: Routes = [
   {
@@ -39,13 +40,18 @@ export const routes: Routes = [
         path: 'dashboard',
         component: Dashboard,
         canActivate: [authGuard],
-        // data: { role: ['ADMINISTRATOR', 'SALES_REPRESENTATIVE' , 'PRODUCT_MANAGER' , 'FINANCIAL_MANAGER' , 'PURCHASING_OFFICER' , 'BUSINESS_ANALYST'] },
       },
       {
         path: 'sales-orders',
         component: Orders,
         canActivate: [authGuard],
         data: { role: ['ADMINISTRATOR', 'SALES_REPRESENTATIVE'] },
+      },
+      {
+        path: 'edit-order/:id',
+        component: EditOrder,
+        canActivate: [authGuard],
+        data: { role: ['SALES_REPRESENTATIVE'] },
       },
       {
         path: 'bom',
@@ -81,7 +87,7 @@ export const routes: Routes = [
         path: 'add-product',
         component: CreateOrder,
         canActivate: [authGuard],
-        data: { role: ['ADMINISTRATOR', 'SALES_REPRESENTATIVE'] },
+        data: { role: [ 'SALES_REPRESENTATIVE'] },
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],

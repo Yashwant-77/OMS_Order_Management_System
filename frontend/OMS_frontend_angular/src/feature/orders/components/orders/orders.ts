@@ -7,11 +7,18 @@ import { UserService } from '../../../../app/services/user/user.service';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar , MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-orders',
-  imports: [MatPaginatorModule, CommonModule, FormsModule, RouterModule, MatProgressSpinnerModule , MatSnackBarModule],
+  imports: [
+    MatPaginatorModule,
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+  ],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
@@ -19,7 +26,7 @@ export class Orders {
   orders: any[] = [];
 
   constructor(
-    private snack : MatSnackBar,
+    private snack: MatSnackBar,
     private apiOrdersService: ApiOrders,
     private router: Router,
     private userService: UserService,
@@ -32,25 +39,33 @@ export class Orders {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
+  getRole(): string{
+    return this.userService.getRole();
+  }
+
   clearFilters() {
     this.searchText = '';
     this.selectedStatus = '';
   }
 
-  deleteOrder(orderId: any) {
+  deleteOrder(orderId: number) {
     console.log('Delete', orderId);
     this.apiOrdersService.deleteOrder(orderId).subscribe({
       next: (res: any) => {
-        console.log("sucessfully deleted the order ");
+        console.log('sucessfully deleted the order', res);
 
-         this.snack.open('✅ Order deleted successfully!', 'Close', {
+        this.orders = this.orders.filter((order) => order.id !== orderId);
+
+        this.snack.open('✅ Order deleted successfully!', 'Close', {
           duration: 3000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
         });
-        
+
+        this.cd.detectChanges();
       },
       error: (err) => {
+        console.log('Status code : ', err.status);
         console.error('Error in deleting order !', err);
         if (err.status === 401) {
           this.userService.clear();
@@ -58,10 +73,6 @@ export class Orders {
         }
       },
     });
-  }
-
-  editOrder(order: any) {
-    console.log('Edit', order);
   }
 
   activeMenu: string | null = null;
@@ -86,7 +97,7 @@ export class Orders {
   }
 
   getOrders() {
-     this.isLoading = true;
+    this.isLoading = true;
     this.apiOrdersService
       .getFilteredOrders(this.currentPage, this.itemsPerPage, this.selectedStatus, this.searchText)
       .subscribe({
@@ -138,7 +149,6 @@ export class Orders {
       this.getOrders(); // fetch new page
     }
   }
-
 
   // ==================== SPINNER LOGI =====================================
 

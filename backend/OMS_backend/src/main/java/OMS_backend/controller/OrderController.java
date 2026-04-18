@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -74,8 +76,8 @@ public class OrderController {
             "SALES_REPRESENTATIVE or ADMINISTRATOR only.")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('SALES_REPRESENTATIVE', 'ADMINISTRATOR')")
-    public ResponseEntity<String> cancelOrder(@PathVariable Long id) {
+    public ResponseEntity<?> cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
-        return new ResponseEntity<>("Order cancelled successfully", HttpStatus.OK);
+        return ResponseEntity.ok(Map.of("message", "Order cancelled successfully"));
     }
 }

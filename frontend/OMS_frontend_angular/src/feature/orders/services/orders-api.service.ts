@@ -28,7 +28,7 @@ export class ApiOrders {
   }
 
 
-  public deleteOrder(orderId:any) {
+  public deleteOrder(orderId:number) {
     return this.http.delete(`${environment.baseUrl}/api/orders/${orderId}` );
   }
 
