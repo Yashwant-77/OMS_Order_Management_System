@@ -13,11 +13,14 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import { COLOR_CONSTANTS } from '../../../../app/shared/utils/colorConstants';
 import { UserService } from '../../../../app/services/user/user.service';
 import { Router } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector: 'app-login',
-  imports: [MatFormFieldModule , MatIconModule , MatInputModule , MatSelectModule , MatDividerModule  ,FormsModule , MatButtonModule   , MatToolbarModule  ],
+  imports: [CommonModule ,   MatFormFieldModule , MatIconModule , MatInputModule , MatSelectModule , MatDividerModule  ,FormsModule , MatButtonModule   , MatToolbarModule  , MatProgressSpinnerModule ],
   templateUrl: './login.html',
   styleUrl: './login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,12 +33,16 @@ export class Login {
     role:''   // DEFAULT ROLE
   }
 
+  isLoading = false;
+
   colors = COLOR_CONSTANTS;
   constructor(private authApiService:AuthApiService , private snak : MatSnackBar , private userService : UserService , 
-    private router : Router
+    private router : Router , 
+    private cdr : ChangeDetectorRef
   ){}
 
   doSubmitForm(){
+    
     console.log("Trying to submit form");
 
     if(
@@ -45,9 +52,13 @@ export class Login {
       return;
     }
 
+    this.isLoading = true;
+    this.cdr.detectChanges()
 
     this.authApiService.callLogin(this.credential).subscribe(
       (response:any)=> {
+        this.isLoading = false;
+        this.cdr.detectChanges()
         console.log(response)
 
         // temporary according the bakend response
@@ -57,6 +68,8 @@ export class Login {
       } ,
       (error) => {
         console.log(error)
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     );
 

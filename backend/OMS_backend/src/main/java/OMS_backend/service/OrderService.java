@@ -235,6 +235,65 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponse updateOrder(Long id, CreateOrderRequest request) {
+
+        SalesOrder order = salesOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        System.out.println("Order Status: " + order.getStatus());
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BadRequestException("Only PENDING orders can be updated");
+        }
+
+        // Update customer
+        Customer customer = customerRepository.findById(request.getCustomerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        order.setCustomer(customer);
+
+        // Restore stock
+        for (SalesOrderItem oldItem : order.getItems()) {
+            Product product = oldItem.getProduct();
+            product.setQuantityInStock(product.getQuantityInStock() + oldItem.getQuantity());
+        }
+
+        order.getItems().clear();
+
+        double total = 0;
+
+        for (OrderItemRequest itemReq : request.getItems()) {
+
+            Product product = productRepository.findById(itemReq.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+            if (product.getQuantityInStock() < itemReq.getQuantity()) {
+                throw new BadRequestException("Insufficient stock for " + product.getProductName());
+            }
+
+            product.setQuantityInStock(product.getQuantityInStock() - itemReq.getQuantity());
+
+            SalesOrderItem item = new SalesOrderItem();
+            item.setSalesOrder(order);
+            item.setProduct(product);
+            item.setQuantity(itemReq.getQuantity());
+            item.setUnitPrice(product.getUnitPrice());
+
+            order.getItems().add(item);
+
+            total += product.getUnitPrice() * itemReq.getQuantity();
+        }
+
+        order.setTotalAmount(total);
+
+        SalesOrder updatedOrder = salesOrderRepository.save(order);
+
+        return mapToOrderResponse(updatedOrder);
+    }
+
+
+
+    @Transactional
     public void cancelOrder(Long id) {
 
         log.info("Cancelling order. orderId={}", id);

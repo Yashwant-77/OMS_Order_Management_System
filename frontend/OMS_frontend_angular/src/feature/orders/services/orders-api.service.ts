@@ -49,5 +49,23 @@ export class ApiOrders {
     return this.http.post(`${environment.baseUrl}/api/customers` , customer);
   }
 
+  public getOrderById(orderId : number){
+    return this.http.get(`${environment.baseUrl}/api/orders/${orderId}`);
+  }
+
+
+  public updateOrder(orderId : number , order : any){
+    return this.http.put(`${environment.baseUrl}/api/orders/update-order/${orderId}` , order);
+  }
+
+
+  public updateStatus(orderId : number , status:string){
+    let params = new HttpParams()
+      .set('status', status)
+    return this.http.put(`${environment.baseUrl}/api/orders/${orderId}/status` , {params});
+  }
+
+
+
 
 }

@@ -12,7 +12,6 @@ import { Purchase } from '../feature/purchase-orders/components/purchase/purchas
 import { Reports } from '../feature/reports/components/reports/reports';
 import { Users } from '../feature/users/components/users/users';
 import { Profile } from './shared/components/profile/profile';
-import { EditOrder } from '../feature/orders/components/edit-order/edit-order';
 
 export const routes: Routes = [
   {
@@ -49,7 +48,7 @@ export const routes: Routes = [
       },
       {
         path: 'edit-order/:id',
-        component: EditOrder,
+        component: CreateOrder,
         canActivate: [authGuard],
         data: { role: ['SALES_REPRESENTATIVE'] },
       },

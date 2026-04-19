@@ -10,9 +10,13 @@ import { BaseChartDirective } from 'ng2-charts';
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService ) {}
 
   role: string = '';
+  totalOrders :number = 0;
+  totalCustomer: number = 0;
+  totalBills :number = 0;
+
 
   ngOnInit(): void {
     let role = this.userService.getRole();
@@ -28,6 +32,8 @@ export class Dashboard implements OnInit {
   }
 
   // 📊 PIE CHART (Order Status)
+
+  
   pieChartData: ChartConfiguration<'pie'>['data'] = {
     labels: ['Pending', 'Completed', 'Cancelled'],
     datasets: [

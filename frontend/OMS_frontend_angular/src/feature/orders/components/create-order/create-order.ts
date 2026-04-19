@@ -13,8 +13,9 @@ import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-
-
+import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-create-order',
@@ -28,7 +29,8 @@ import { NgForm } from '@angular/forms';
     MatSelectModule,
     MatDialogModule, // ✅ IMPORTANT
     MatSnackBarModule,
-    RouterModule
+    RouterModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './create-order.html',
   styleUrl: './create-order.css',
@@ -40,6 +42,8 @@ export class CreateOrder implements OnInit {
     private userService: UserService,
     private router: Router,
     private orderApiService: ApiOrders,
+    private route: ActivatedRoute,
+    private cdr : ChangeDetectorRef
   ) {}
 
   @ViewChild('orderForm') form!: NgForm;
@@ -59,11 +63,46 @@ export class CreateOrder implements OnInit {
     totalAmount: 0,
   };
 
+  isEditMode = false;
+  orderId!: number;
+  isLoading = false;
+
   // ================ PRODUCTS and CUSTOMERS FROM API ====================
 
   ngOnInit() {
     this.getProducts();
     this.getCustomers();
+   this.route.params.subscribe(params => {
+  this.orderId = params['id'];
+
+  if (this.orderId) {
+    this.isEditMode = true;
+    this.loadOrder();
+  }
+});
+  }
+
+  loadOrder() {
+    this.isLoading = true;
+
+    this.orderApiService.getOrderById(this.orderId).subscribe({next:(res: any) => {
+      this.order = {
+        customerId: res.customerId,
+        totalAmount: res.totalAmount,
+        items: res.items || [],
+      };
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      this.isLoading= false;
+        console.error('Error fetching order', err);
+        if (err.status === 401) {
+          this.userService.clear();
+          this.router.navigate(['/login']);
+        }
+      },
+  });
   }
 
   getProducts() {
@@ -159,31 +198,43 @@ export class CreateOrder implements OnInit {
 
   // ================= SUBMIT =================
   onSubmit() {
-    const payload = {
-      customerId: this.order.customerId,
-      totalAmount: this.order.totalAmount,
-      items: this.order.items,
-    };
+  const payload = {
+    customerId: this.order.customerId,
+    totalAmount: this.order.totalAmount,
+    items: this.order.items,
+  };
 
-    console.log('Order Payload:', payload);
+  console.log('Order Payload:', payload);
 
-    // write api call here
-    this.orderApiService.createOrder(payload).subscribe({
-      next: (res: any) => {
-        console.log('order added successfully');
+  this.isLoading = true;
 
-        // user message to show order create successfully
-        this.snackBar.open('✅ Order created successfully!', 'Close', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-        });
+  const request = this.isEditMode
+    ? this.orderApiService.updateOrder(this.orderId, this.order)
+    : this.orderApiService.createOrder(payload);
 
+  request.subscribe({
+    next: (res) => {
+      this.isLoading = false;
 
-        // resetting the order form
-         this.form.resetForm();
+      const message = this.isEditMode
+        ? '✅ Order updated successfully!'
+        : '✅ Order created successfully!';
 
-        //  resetting the order state
+      console.log(message);
+
+      this.snackBar.open(message, 'Close', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
+
+      if (this.isEditMode) {
+        // 👉 navigate after update
+        this.router.navigate(['/sales-orders']);
+      } else {
+        // 👉 reset only for create
+        this.form.resetForm();
+
         this.order = {
           customerId: null,
           items: [
@@ -195,14 +246,23 @@ export class CreateOrder implements OnInit {
           ],
           totalAmount: 0,
         };
-      },
-      error: (err) => {
-        console.error('Error creating order', err);
-        if (err.status === 401) {
-          this.userService.clear();
-          this.router.navigate(['/login']);
-        }
-      },
-    });
-  }
+      }
+    },
+
+    error: (err) => {
+      this.isLoading = false;
+
+      console.error('Error:', err);
+
+      this.snackBar.open('❌ Something went wrong', 'Close', {
+        duration: 3000,
+      });
+
+      if (err.status === 401) {
+        this.userService.clear();
+        this.router.navigate(['/login']);
+      }
+    },
+  });
+}
 }
