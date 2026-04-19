@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from '../feature/auth/pages/login/login';
 import { HomeLayout } from './layouts/home-layout/home-layout';
 import { authGuard } from './guards/auth-guard';
-import { Orders } from '../feature/orders/components/orders/orders';
+import { Orders } from '../feature/orders/components/view-orders/view-orders';
 import { Forbidden } from './shared/components/forbidden/forbidden';
 import { CreateOrder } from '../feature/orders/components/create-order/create-order';
 import { Dashboard } from './shared/components/dashboard/dashboard';
