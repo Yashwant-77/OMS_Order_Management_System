@@ -4,6 +4,9 @@
   <h1 class="text-xl w-full font-semibold mb-4">
     Create BOM
   </h1>
+  <p class="text-sm text-gray-500 mb-4">
+    Select a product to see its existing BOM.
+  </p>
 
   <!-- loading spinner -->
   <div *ngIf="isLoading" class="flex justify-center items-center h-[60vh]">
@@ -68,14 +71,21 @@
       <h2 class="font-semibold mb-2">Existing BOM</h2>
 
       <div class="border rounded-lg overflow-hidden">
-        <div class="grid grid-cols-2 bg-gray-100 font-semibold text-sm px-3 py-2">
+        <div class="grid grid-cols-3 bg-gray-100 font-semibold text-sm px-3 py-2">
           <span>Component</span>
           <span>Quantity</span>
+          <span class="text-right">Action</span>
         </div>
 
-        <div *ngFor="let component of existingComponents" class="grid grid-cols-2 text-sm px-3 py-2 border-t">
+        <div *ngFor="let component of existingComponents" class="grid grid-cols-3 text-sm px-3 py-2 border-t items-center">
           <span>{{ component.componentName }}</span>
           <span>{{ component.quantity }}</span>
+          <span class="text-right">
+            <button type="button" (click)="removeBomComponent(component.productBomId)"
+              class="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-red-100 text-red-500 transition">
+              <i class="fas fa-trash-can"></i>
+            </button>
+          </span>
         </div>
       </div>
     </div>

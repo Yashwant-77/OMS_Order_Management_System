@@ -144,6 +144,31 @@ export class BomCreate implements OnInit {
     }
   }
 
+  removeBomComponent(productBomId: number) {
+    this.http.delete(`${environment.baseUrl}/api/bom/${productBomId}`, { responseType: 'text' }).subscribe({
+      next: () => {
+        this.existingComponents = this.existingComponents.filter((component) => {
+          return component.productBomId !== productBomId;
+        });
+
+        this.snackBar.open('BOM component removed successfully!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error removing BOM component', err);
+        this.snackBar.open(err?.error?.message || 'Something went wrong', 'Close', {
+          duration: 3000,
+        });
+        this.handleAuthError(err);
+      },
+    });
+  }
+
   isComponentAlreadySelected(productId: number, currentIndex: number): boolean {
     return this.bom.components.some((item, index) => {
       return index !== currentIndex && item.componentId === productId;
