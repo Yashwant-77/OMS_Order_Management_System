@@ -20,6 +20,7 @@ public class InventoryNotificationService {
 
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Value("${app.notifications.email-enabled:false}")
     private boolean emailEnabled;
@@ -59,8 +60,12 @@ public class InventoryNotificationService {
             return;
         }
 
+        for (User officer : purchasingOfficers) {
+            notificationService.createNotification(officer, subject, body);
+        }
+
         if (!emailEnabled) {
-            log.info("Email notifications are disabled. Stock notification not sent. subject={}", subject);
+            log.info("Email notifications are disabled. In-app notification created only. subject={}", subject);
             return;
         }
 

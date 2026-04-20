@@ -104,10 +104,44 @@
 
       <!-- RIGHT -->
       <div class="flex items-center">
-        <button
-          class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 transition-colors cursor-pointer border-none bg-transparent text-white">
+        <button [matMenuTriggerFor]="notificationMenu"
+          class="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 transition-colors cursor-pointer border-none bg-transparent text-white">
           <i class="fas fa-bell text-lg"></i>
+          <span *ngIf="unreadCount > 0"
+            class="absolute top-1 right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+            {{ unreadCount > 9 ? '9+' : unreadCount }}
+          </span>
         </button>
+        <mat-menu #notificationMenu="matMenu" class="bg-white!">
+          <div class="w-80 max-w-[90vw]">
+            <div class="flex items-center justify-between px-4 py-3 border-b">
+              <span class="font-semibold text-gray-700">Notifications</span>
+              <button *ngIf="notifications.length" type="button" (click)="markAllNotificationsAsRead()"
+                class="text-xs text-[#3f51b5] hover:underline">
+                Mark all read
+              </button>
+            </div>
+
+            <div *ngIf="!notifications.length" class="px-4 py-5 text-sm text-gray-500">
+              No notifications yet.
+            </div>
+
+            <div *ngIf="notifications.length" class="max-h-96 overflow-y-auto">
+              <button *ngFor="let notification of notifications" type="button" (click)="markAsRead(notification)"
+                class="w-full text-left px-4 py-3 border-b hover:bg-gray-50">
+                <div class="flex gap-2">
+                  <span *ngIf="!notification.readStatus" class="mt-2 h-2 w-2 rounded-full bg-red-500 shrink-0"></span>
+                  <span *ngIf="notification.readStatus" class="mt-2 h-2 w-2 rounded-full bg-transparent shrink-0"></span>
+                  <span class="min-w-0">
+                    <span class="block text-sm font-semibold text-gray-800">{{ notification.title }}</span>
+                    <span class="block text-xs text-gray-500 whitespace-pre-line">{{ notification.message }}</span>
+                    <span class="block text-xs text-gray-400 mt-1">{{ notification.createdAt | date:'dd MMM yyyy, h:mm a' }}</span>
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </mat-menu>
         <button [matMenuTriggerFor]="menu"
           class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 transition-colors cursor-pointer border-none bg-transparent text-white">
           <i class="fas fa-user-circle text-lg"></i>
