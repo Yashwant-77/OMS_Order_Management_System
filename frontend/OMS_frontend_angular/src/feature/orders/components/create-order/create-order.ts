@@ -111,6 +111,7 @@ export class CreateOrder implements OnInit {
       next: (res: any) => {
         this.products = res;
         console.log('Products:', this.products);
+        
       },
       error: (err) => {
         console.error('Error fetching products', err);
@@ -248,6 +249,8 @@ export class CreateOrder implements OnInit {
             totalAmount: 0,
           };
         }
+
+        this.cdr.detectChanges();
       },
 
       error: (err) => {

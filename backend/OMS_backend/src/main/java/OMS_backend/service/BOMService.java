@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BOMService {
+public class    BOMService {
 
     private final ProductBOMRepository productBOMRepository;
     private final ProductRepository productRepository;

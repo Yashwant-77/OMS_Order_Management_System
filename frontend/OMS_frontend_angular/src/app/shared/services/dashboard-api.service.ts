@@ -10,12 +10,7 @@ export class DashboardApiService {
   constructor(private http : HttpClient){}
 
 
-  getPieChartData(){
-    return this.http.get(`${environment.baseUrl}/api/reports/orders/summary`);
-  }
-
-
-  getBarGraphData(){
+  getDashboardSummary(){
     return this.http.get(`${environment.baseUrl}/api/dashboard/summary`);
   }
 
