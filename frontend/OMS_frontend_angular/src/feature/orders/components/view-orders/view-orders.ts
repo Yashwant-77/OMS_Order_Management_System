@@ -19,8 +19,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
-  templateUrl: './orders.html',
-  styleUrl: './orders.css',
+  templateUrl: './view-orders.html',
+  styleUrl: './view-orders.css',
 })
 export class Orders {
   orders: any[] = [];

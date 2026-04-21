@@ -72,6 +72,19 @@ public class OrderController {
         return new ResponseEntity<>(orderService.updateOrderStatus(id, status), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Update order details",
+            description = "Allows updating order details only when status is PENDING"
+    )
+    @PutMapping("/update-order/{id}")
+    @PreAuthorize("hasAuthority('SALES_REPRESENTATIVE') or hasAuthority('ADMINISTRATOR')")
+    public ResponseEntity<OrderResponse> updateOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateOrderRequest request
+    ) {
+        return ResponseEntity.ok(orderService.updateOrder(id, request));
+    }
+
     @Operation(summary = "Cancel order", description = "Cancels a sales order and restores stock. " +
             "SALES_REPRESENTATIVE or ADMINISTRATOR only.")
     @DeleteMapping("/{id}")

@@ -21,4 +21,13 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long> , 
     // sum of all order amounts excluding cancelled orders
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) " + "FROM SalesOrder o WHERE o.status != 'CANCELLED'")
     double sumTotalOrderValue();
+
+
+    @Query("""
+SELECT MONTH(o.orderDate), COUNT(o)
+FROM SalesOrder o
+GROUP BY MONTH(o.orderDate)
+ORDER BY MONTH(o.orderDate)
+""")
+    List<Object[]> getMonthlyOrders();
 }

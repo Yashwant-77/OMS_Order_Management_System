@@ -2,17 +2,16 @@ import { Routes } from '@angular/router';
 import { Login } from '../feature/auth/pages/login/login';
 import { HomeLayout } from './layouts/home-layout/home-layout';
 import { authGuard } from './guards/auth-guard';
-import { Orders } from '../feature/orders/components/orders/orders';
+import { Orders } from '../feature/orders/components/view-orders/view-orders';
 import { Forbidden } from './shared/components/forbidden/forbidden';
 import { CreateOrder } from '../feature/orders/components/create-order/create-order';
 import { Dashboard } from './shared/components/dashboard/dashboard';
-import { Bom } from '../feature/bom/components/bom/bom';
 import { Invoice } from '../feature/invoice/components/invoice/invoice';
 import { Purchase } from '../feature/purchase-orders/components/purchase/purchase';
 import { Reports } from '../feature/reports/components/reports/reports';
 import { Users } from '../feature/users/components/users/users';
 import { Profile } from './shared/components/profile/profile';
-import { EditOrder } from '../feature/orders/components/edit-order/edit-order';
+import { BomCreate } from '../feature/bom/components/bom-create/bom-create';
 
 export const routes: Routes = [
   {
@@ -40,6 +39,7 @@ export const routes: Routes = [
         path: 'dashboard',
         component: Dashboard,
         canActivate: [authGuard],
+        data : { role : ['ADMINISTRATOR', 'SALES_REPRESENTATIVE' , 'PRODUCT_MANAGER' , 'FINANCE_MANAGER' , 'BUSINESS_ANALYST' ,'PURCHASING_OFFICER']}
       },
       {
         path: 'sales-orders',
@@ -49,21 +49,21 @@ export const routes: Routes = [
       },
       {
         path: 'edit-order/:id',
-        component: EditOrder,
+        component: CreateOrder,
         canActivate: [authGuard],
         data: { role: ['SALES_REPRESENTATIVE'] },
       },
       {
         path: 'bom',
-        component: Bom,
+        component: BomCreate,
         canActivate: [authGuard],
-        data: { role: ['ADMINISTRATOR', 'PRODUCT_MANAGER'] },
+        data: { role: ['ADMINISTRATOR', 'PRODUCT_MANAGER' , 'SALES_REPRESENTATIVE'] },
       },
       {
         path: 'invoice',
         component: Invoice,
         canActivate: [authGuard],
-        data: { role: ['ADMINISTRATOR', 'FINANCIAL_MANAGER'] },
+        data: { role: ['ADMINISTRATOR', 'FINANCE_MANAGER'] },
       },
       {
         path: 'purchase-orders',

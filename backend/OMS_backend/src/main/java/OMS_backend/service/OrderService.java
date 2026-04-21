@@ -11,6 +11,7 @@ import OMS_backend.exception.DuplicateResourceException;
 import OMS_backend.exception.ResourceNotFoundException;
 import OMS_backend.model.*;
 import OMS_backend.repository.CustomerRepository;
+import OMS_backend.repository.ProductBOMRepository;
 import OMS_backend.repository.ProductRepository;
 import OMS_backend.repository.SalesOrderRepository;
 import jakarta.persistence.criteria.Join;
@@ -37,6 +38,8 @@ public class OrderService {
     private final SalesOrderRepository salesOrderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final ProductBOMRepository productBOMRepository;
+    private final InventoryNotificationService inventoryNotificationService;
 
     // customer operations
     public CustomerResponse createCustomer(CustomerRequest request) {
@@ -108,22 +111,7 @@ public class OrderService {
                         return new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId());
                     });
 
-            // stock check
-            if (product.getQuantityInStock() < itemRequest.getQuantity()) {
-                log.warn("Insufficient stock. productId={}, requested={}, available={}",
-                        product.getProductId(), itemRequest.getQuantity(), product.getQuantityInStock());
-
-                throw new BadRequestException("Insufficient stock for: " + product.getProductName()
-                        + ". Available: " + product.getQuantityInStock());
-            }
-
-            // deduct stock
-            int oldStock = product.getQuantityInStock();
-            product.setQuantityInStock(oldStock - itemRequest.getQuantity());
-            productRepository.save(product);
-
-            log.debug("Stock updated. productId={}, oldStock={}, newStock={}",
-                    product.getProductId(), oldStock, product.getQuantityInStock());
+            deductInventory(product, itemRequest.getQuantity());
 
             // build item
             SalesOrderItem item = new SalesOrderItem();
@@ -235,6 +223,60 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponse updateOrder(Long id, CreateOrderRequest request) {
+
+        SalesOrder order = salesOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        System.out.println("Order Status: " + order.getStatus());
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BadRequestException("Only PENDING orders can be updated");
+        }
+
+        // Update customer
+        Customer customer = customerRepository.findById(request.getCustomerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        order.setCustomer(customer);
+
+        // Restore stock
+        for (SalesOrderItem oldItem : order.getItems()) {
+            restoreInventory(oldItem.getProduct(), oldItem.getQuantity());
+        }
+
+        order.getItems().clear();
+
+        double total = 0;
+
+        for (OrderItemRequest itemReq : request.getItems()) {
+
+            Product product = productRepository.findById(itemReq.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+            deductInventory(product, itemReq.getQuantity());
+
+            SalesOrderItem item = new SalesOrderItem();
+            item.setSalesOrder(order);
+            item.setProduct(product);
+            item.setQuantity(itemReq.getQuantity());
+            item.setUnitPrice(product.getUnitPrice());
+
+            order.getItems().add(item);
+
+            total += product.getUnitPrice() * itemReq.getQuantity();
+        }
+
+        order.setTotalAmount(total);
+
+        SalesOrder updatedOrder = salesOrderRepository.save(order);
+
+        return mapToOrderResponse(updatedOrder);
+    }
+
+
+
+    @Transactional
     public void cancelOrder(Long id) {
 
         log.info("Cancelling order. orderId={}", id);
@@ -253,20 +295,126 @@ public class OrderService {
         // restore stock
         for (SalesOrderItem item : order.getItems()) {
 
-            Product product = item.getProduct();
-            int oldStock = product.getQuantityInStock();
-
-            product.setQuantityInStock(oldStock + item.getQuantity());
-            productRepository.save(product);
-
-            log.debug("Stock restored. productId={}, restoredQty={}, newStock={}",
-                    product.getProductId(), item.getQuantity(), product.getQuantityInStock());
+            restoreInventory(item.getProduct(), item.getQuantity());
         }
 
         order.setStatus(OrderStatus.CANCELLED);
         salesOrderRepository.save(order);
 
         log.info("Order cancelled successfully. orderId={}", id);
+    }
+
+    private void deductInventory(Product product, int orderedQuantity) {
+
+        List<ProductBOM> bomItems = productBOMRepository.findByProduct_ProductId(product.getProductId());
+
+        if (bomItems.isEmpty()) {
+            deductProductStock(product, orderedQuantity);
+            return;
+        }
+
+        for (ProductBOM bomItem : bomItems) {
+            Product component = bomItem.getComponent();
+            int requiredQuantity = orderedQuantity * bomItem.getQuantity();
+
+            if (component.getQuantityInStock() < requiredQuantity) {
+                log.warn("Insufficient component stock. productId={}, componentId={}, requested={}, available={}",
+                        product.getProductId(),
+                        component.getProductId(),
+                        requiredQuantity,
+                        component.getQuantityInStock());
+
+                inventoryNotificationService.notifyInsufficientStock(
+                        component,
+                        requiredQuantity,
+                        component.getQuantityInStock());
+
+                throw new BadRequestException("Insufficient stock for component: " + component.getProductName()
+                        + ". Required: " + requiredQuantity
+                        + ", Available: " + component.getQuantityInStock());
+            }
+        }
+
+        for (ProductBOM bomItem : bomItems) {
+            Product component = bomItem.getComponent();
+            int requiredQuantity = orderedQuantity * bomItem.getQuantity();
+            int oldStock = component.getQuantityInStock();
+
+            component.setQuantityInStock(oldStock - requiredQuantity);
+            productRepository.save(component);
+
+            if (component.getQuantityInStock() == 0) {
+                inventoryNotificationService.notifyOutOfStock(component, component.getQuantityInStock());
+            }
+
+            log.debug("Component stock updated. productId={}, componentId={}, oldStock={}, newStock={}",
+                    product.getProductId(),
+                    component.getProductId(),
+                    oldStock,
+                    component.getQuantityInStock());
+        }
+    }
+
+    private void restoreInventory(Product product, int orderedQuantity) {
+
+        List<ProductBOM> bomItems = productBOMRepository.findByProduct_ProductId(product.getProductId());
+
+        if (bomItems.isEmpty()) {
+            restoreProductStock(product, orderedQuantity);
+            return;
+        }
+
+        for (ProductBOM bomItem : bomItems) {
+            Product component = bomItem.getComponent();
+            int restoredQuantity = orderedQuantity * bomItem.getQuantity();
+            int oldStock = component.getQuantityInStock();
+
+            component.setQuantityInStock(oldStock + restoredQuantity);
+            productRepository.save(component);
+
+            log.debug("Component stock restored. productId={}, componentId={}, restoredQty={}, newStock={}",
+                    product.getProductId(),
+                    component.getProductId(),
+                    restoredQuantity,
+                    component.getQuantityInStock());
+        }
+    }
+
+    private void deductProductStock(Product product, int quantity) {
+
+        if (product.getQuantityInStock() < quantity) {
+            log.warn("Insufficient stock. productId={}, requested={}, available={}",
+                    product.getProductId(), quantity, product.getQuantityInStock());
+
+            inventoryNotificationService.notifyInsufficientStock(
+                    product,
+                    quantity,
+                    product.getQuantityInStock());
+
+            throw new BadRequestException("Insufficient stock for: " + product.getProductName()
+                    + ". Available: " + product.getQuantityInStock());
+        }
+
+        int oldStock = product.getQuantityInStock();
+        product.setQuantityInStock(oldStock - quantity);
+        productRepository.save(product);
+
+        if (product.getQuantityInStock() == 0) {
+            inventoryNotificationService.notifyOutOfStock(product, product.getQuantityInStock());
+        }
+
+        log.debug("Stock updated. productId={}, oldStock={}, newStock={}",
+                product.getProductId(), oldStock, product.getQuantityInStock());
+    }
+
+    private void restoreProductStock(Product product, int quantity) {
+
+        int oldStock = product.getQuantityInStock();
+        product.setQuantityInStock(oldStock + quantity);
+        productRepository.save(product);
+
+        log.debug("Stock restored. productId={}, restoredQty={}, newStock={}",
+                product.getProductId(), quantity, product.getQuantityInStock());
     }
 
     private OrderResponse mapToOrderResponse(SalesOrder order) {

@@ -1,0 +1,48 @@
+{ 
+    "name": "Vansh Batham",
+    "email": "vanshbatham.pro@gmail.com",
+    "password": "vansh16",
+    "role": "ADMINISTRATOR"
+}
+
+{ 
+    "name": "Yashwant Chauhan ",
+    "email": "yashwantchauhan@gmail.com",
+    "password": "yash123",
+    "role": "ADMINISTRATOR"
+}
+
+{ 
+  "name": "Riya Mehta",
+  "email": "riya.mehta@gmail.com",
+  "password": "riya123",
+  "role": "PRODUCT_MANAGER"
+}
+
+{ 
+  "name": "Kunal Verma",
+  "email": "kunal.verma@gmail.com",
+  "password": "kunal123",
+  "role": "FINANCE_MANAGER"
+}
+
+{ 
+  "name": "Sneha Iyer",
+  "email": "sneha.iyer@gmail.com",
+  "password": "sneha123",
+  "role": "BUSINESS_ANALYST"
+}
+
+{ 
+  "name": "Rahul Singh",
+  "email": "rahul.singh@gmail.com",
+  "password": "rahul123",
+  "role": "PURCHASING_OFFICER"
+}
+
+{ 
+  "name": "Neha Kapoor",
+  "email": "neha.kapoor@gmail.com",
+  "password": "neha123",
+  "role": "SALES_REPRESENTATIVE"
+}

@@ -1,7 +1,7 @@
 <div class="bg-gray-300 min-h-screen">
 
     <!-- basic navbar  -->
-    <mat-toolbar color="primary"  class="px-4">
+    <mat-toolbar color="primary" class="px-4">
         <span class="text-lg font-semibold">
             OMS | <span class="font-bold">ABC Ltd.</span>
         </span>
@@ -11,12 +11,18 @@
     <!-- main sectioin of the page -->
     <div class="w-full mt-15 flex flex-col  items-center justify-center ">
 
-        <div class="w-[90%] md:w-[60%] shadow-lg hover:shadow-xl p-10 rounded-2xl bg-white">
+        <div class="w-[90%] md:w-[60%] relative shadow-lg hover:shadow-xl p-10 rounded-2xl bg-white">
             <h1 class="bg-[#3f51b5] text-white py-5 rounded-2xl w-full text-3xl text-center mb-10">Login Form</h1>
+            <!-- spinner -->
+            <p *ngIf="isLoading">LOADING TRUE</p>
+            <div *ngIf="isLoading"
+                class="absolute inset-0 bg-white/70 flex justify-center items-center z-10 rounded-2xl">
+                <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+            </div>
 
-            <form (ngSubmit)="doSubmitForm()" #loginForm="ngForm">
+            <form (ngSubmit)="doSubmitForm()" #loginForm="ngForm" novalidate>
 
-                <mat-form-field  class="w-full" appearance="outline">
+                <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Login as </mat-label>
                     <mat-select name="role" [(ngModel)]="credential.role" required>
                         <mat-option value="ADMINISTRATOR">ADMINISTRATOR</mat-option>
@@ -31,7 +37,8 @@
 
                 <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Email</mat-label>
-                    <input matInput placeholder="Email" name="email" [(ngModel)]="credential.email" required>
+                    <input type="email" matInput placeholder="Email" name="email" [(ngModel)]="credential.email"
+                        required email #emailRef="ngModel">
                 </mat-form-field>
 
 
@@ -42,8 +49,8 @@
                 </mat-form-field>
 
                 <div class="flex gap-3">
-                    <button type="submit" class="w-full h-auto text-lg" matButton="filled"
-                        color="primary">Submit</button>
+                    <button [disabled]="loginForm.invalid || isLoading" type="submit" class="w-full h-auto text-lg"
+                        matButton="filled" color="primary">Submit</button>
                     <button type="reset" class="w-full " matButton="filled" color="primary">Reset</button>
                 </div>
 

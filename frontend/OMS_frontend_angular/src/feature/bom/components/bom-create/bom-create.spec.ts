@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditOrder } from './edit-order';
+import { BomCreate } from './bom-create';
 
-describe('EditOrder', () => {
-  let component: EditOrder;
-  let fixture: ComponentFixture<EditOrder>;
+describe('BomCreate', () => {
+  let component: BomCreate;
+  let fixture: ComponentFixture<BomCreate>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditOrder]
+      imports: [BomCreate]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EditOrder);
+    fixture = TestBed.createComponent(BomCreate);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
