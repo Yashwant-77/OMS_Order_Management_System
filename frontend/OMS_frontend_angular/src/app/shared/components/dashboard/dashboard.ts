@@ -55,28 +55,23 @@ export class Dashboard implements OnInit {
                 res.deliveredOrders,
                 res.processingOrders,
               ],
-              backgroundColor: [
-                '#facc15',
-                '#22c55e',
-                '#ef4444',
-                '#3b82f6',
-                '#10b981',
-                '#a855f7',
-              ],
+              backgroundColor: ['#facc15', '#22c55e', '#ef4444', '#3b82f6', '#10b981', '#a855f7'],
             },
           ],
         };
 
-        this.barChartData = {
-          labels: res.monthlyOrders.map((m: any) => m.month),
-          datasets: [
-            {
-              label: 'Orders',
-              data: res.monthlyOrders.map((m: any) => m.count),
-              backgroundColor: '#6366f1',
-            },
-          ],
-        };
+        if (res.monthlyOrders && res.monthlyOrders.length > 0) {
+          this.barChartData = {
+            labels: res.monthlyOrders.map((m: any) => m.month),
+            datasets: [
+              {
+                label: 'Orders',
+                data: res.monthlyOrders.map((m: any) => m.count),
+                backgroundColor: '#6366f1',
+              },
+            ],
+          };
+        }
 
         this.cdr.detectChanges();
       },
@@ -137,6 +132,11 @@ export class Dashboard implements OnInit {
         backgroundColor: '#6366f1',
       },
     ],
+  };
+
+  barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
   };
 
   barChartType: 'bar' = 'bar';

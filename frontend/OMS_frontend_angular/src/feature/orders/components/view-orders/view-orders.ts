@@ -150,6 +150,46 @@ export class Orders {
     }
   }
 
+  updateOrderStatus(orderId: number, currentStatus: string, newStatus: string) {
+    if (!newStatus) return;
+    
+    this.apiOrdersService.updateStatus(orderId, newStatus).subscribe({
+      next: (res: any) => {
+        const order = this.orders.find(o => o.salesOrderId === orderId);
+        if (order) {
+          order.status = newStatus;
+        }
+        
+        const paginatedOrder = this.paginatedOrders.find(o => o.salesOrderId === orderId);
+        if (paginatedOrder) {
+          paginatedOrder.status = newStatus;
+        }
+        
+        this.snack.open('Status updated successfully!', 'Close', { duration: 3000 });
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to update status', err);
+        this.snack.open('Failed to update status', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  canManageStatus(): boolean {
+    const role = this.getRole();
+    return role === 'ADMINISTRATOR' || role === 'PRODUCT_MANAGER';
+  }
+
+  getNextStatuses(currentStatus: string): string[] {
+    switch (currentStatus) {
+      case 'PENDING': return ['CONFIRMED', 'CANCELLED'];
+      case 'CONFIRMED': return ['PROCESSING'];
+      case 'PROCESSING': return ['SHIPPED'];
+      case 'SHIPPED': return ['DELIVERED'];
+      default: return [];
+    }
+  }
+
   // ==================== SPINNER LOGI =====================================
 
   isLoading = false;

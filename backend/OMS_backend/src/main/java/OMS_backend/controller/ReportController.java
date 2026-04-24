@@ -66,4 +66,18 @@ public class ReportController {
     public ResponseEntity<List<PaymentSummaryReport>> getPaymentSummary() {
         return new ResponseEntity<>(reportService.getPaymentSummary(), HttpStatus.OK);
     }
+
+    @Operation(summary = "Monthly order trend", description = "Returns order count and value per month for the given year.")
+    @GetMapping("/orders/monthly-trend")
+    @PreAuthorize("hasAnyAuthority('BUSINESS_ANALYST', 'ADMINISTRATOR'," + "'SALES_REPRESENTATIVE')")
+    public ResponseEntity<List<MonthlyOrderTrendReport>> getMonthlyOrderTrend(@RequestParam int year) {
+        return new ResponseEntity<>(reportService.getMonthlyOrderTrend(year), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Monthly payment trend", description = "Returns total payments collected per month for the given year.")
+    @GetMapping("/payments/monthly-trend")
+    @PreAuthorize("hasAnyAuthority('BUSINESS_ANALYST', 'ADMINISTRATOR'," + "'FINANCIAL_MANAGER')")
+    public ResponseEntity<List<MonthlyPaymentTrendReport>> getMonthlyPaymentTrend(@RequestParam int year) {
+        return new ResponseEntity<>(reportService.getMonthlyPaymentTrend(year), HttpStatus.OK);
+    }
 }
