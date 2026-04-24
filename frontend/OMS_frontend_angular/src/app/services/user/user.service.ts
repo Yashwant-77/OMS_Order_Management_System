@@ -1,0 +1,66 @@
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class UserService {
+
+  constructor(){}
+
+  public setRole(role:string){
+    localStorage.setItem("role" , role);
+  }
+
+  public getRole() : string{
+    return localStorage.getItem("role") || "";
+  }
+
+  public setToken(jwtToken:string){
+    localStorage.setItem("jwtToken" , jwtToken);
+  }
+
+  public getToken(): string{
+    return localStorage.getItem("jwtToken") || "";
+  }
+
+  public setName(name:string){
+    localStorage.setItem("name" , name);
+  }
+
+  public getName() : string{
+    return localStorage.getItem("name") || "User";
+  }
+
+  public setEmail(email:string){
+    localStorage.setItem("email" , email);
+  }
+
+  public getEmail() : string{
+    return localStorage.getItem("email") || "";
+  }
+
+  public clear(){
+    localStorage.clear();
+  }
+
+  public isLoggedIn(){
+    return this.getRole() && this.getToken();
+  }
+
+
+  public roleMatch(allowedRoles : string[]){
+    let isMatch = false;
+
+    for(let i = 0 ; i < allowedRoles.length ; ++i){
+      if(this.getRole() === allowedRoles[i]){
+        isMatch = true;
+        return isMatch;
+      }
+    }
+    return isMatch;
+
+  }
+
+
+  
+}

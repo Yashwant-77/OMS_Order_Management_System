@@ -1,0 +1,66 @@
+<div class="bg-gray-300 min-h-screen">
+
+    <!-- basic navbar  -->
+    <mat-toolbar color="primary" class="px-4">
+        <span class="text-lg font-semibold">
+            OMS | <span class="font-bold">ABC Ltd.</span>
+        </span>
+    </mat-toolbar>
+    <!-- basic navbar end -->
+
+    <!-- main sectioin of the page -->
+    <div class="w-full mt-15 flex flex-col  items-center justify-center ">
+
+        <div class="w-[90%] md:w-[60%] relative shadow-lg hover:shadow-xl p-10 rounded-2xl bg-white">
+            <h1 class="bg-[#3f51b5] text-white py-5 rounded-2xl w-full text-3xl text-center mb-10">Login Form</h1>
+            <!-- spinner -->
+            <p *ngIf="isLoading">LOADING TRUE</p>
+            <div *ngIf="isLoading"
+                class="absolute inset-0 bg-white/70 flex justify-center items-center z-10 rounded-2xl">
+                <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+            </div>
+
+            <form (ngSubmit)="doSubmitForm()" #loginForm="ngForm" novalidate>
+
+                <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Login as </mat-label>
+                    <mat-select name="role" [(ngModel)]="credential.role" required>
+                        <mat-option value="ADMINISTRATOR">ADMINISTRATOR</mat-option>
+                        <mat-option value="PRODUCT_MANAGER">PRODUCT MANAGER</mat-option>
+                        <mat-option value="SALES_REPRESENTATIVE">SALES REPRESENTATIVE</mat-option>
+                        <mat-option value="PURCHASING_OFFICER">PURCHASING OFFICER</mat-option>
+                        <mat-option value="FINANCE_MANAGER">FINANCE MANAGER</mat-option>
+                        <mat-option value="BUSINESS_ANALYST">BUSINESS ANALYST</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+
+                <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input type="email" matInput placeholder="Email" name="email" [(ngModel)]="credential.email"
+                        required email #emailRef="ngModel">
+                </mat-form-field>
+
+
+                <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Password</mat-label>
+                    <input type="password" matInput placeholder="Password" name="password"
+                        [(ngModel)]="credential.password" required>
+                </mat-form-field>
+
+                <div class="flex gap-3">
+                    <button [disabled]="loginForm.invalid || isLoading" type="submit" class="w-full h-auto text-lg"
+                        matButton="filled" color="primary">Submit</button>
+                    <button type="reset" class="w-full " matButton="filled" color="primary">Reset</button>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a routerLink="/forgot-password" class="text-[#3f51b5] hover:underline cursor-pointer font-medium">Forgot Password?</a>
+                </div>
+
+            </form>
+            <!-- {{credential | json}} -->
+        </div>
+
+    </div>
+</div>

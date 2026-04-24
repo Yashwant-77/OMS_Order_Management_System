@@ -1,0 +1,10 @@
+package OMS_backend.model;
+
+public enum Role {
+    ADMINISTRATOR,
+    PRODUCT_MANAGER,
+    FINANCE_MANAGER,
+    BUSINESS_ANALYST,
+    PURCHASING_OFFICER,
+    SALES_REPRESENTATIVE,
+}
