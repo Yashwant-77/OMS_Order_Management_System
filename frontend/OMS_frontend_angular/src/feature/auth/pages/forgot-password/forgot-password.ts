@@ -1,4 +1,4 @@
-import { Component,ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -6,10 +6,22 @@ import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { environment } from '../../../../environments/environment';
 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule, RouterModule],
+  imports: [
+    CommonModule, FormsModule, MatSnackBarModule, RouterModule,
+    MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule,
+    MatButtonModule, MatToolbarModule, MatProgressSpinnerModule
+  ],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css'
 })
@@ -20,7 +32,7 @@ export class ForgotPassword {
   // Step 1 data
   email = '';
   role = 'SALES_REPRESENTATIVE';
-  roles = ['ADMINISTRATOR', 'SALES_REPRESENTATIVE', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'];
+  roles = ['ADMINISTRATOR', 'SALES_REPRESENTATIVE', 'PRODUCT_MANAGER', 'PURCHASING_OFFICER', 'FINANCE_MANAGER', 'BUSINESS_ANALYST'];
 
   // Step 2 data
   otp = '';
