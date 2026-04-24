@@ -23,6 +23,22 @@ export class UserService {
     return localStorage.getItem("jwtToken") || "";
   }
 
+  public setName(name:string){
+    localStorage.setItem("name" , name);
+  }
+
+  public getName() : string{
+    return localStorage.getItem("name") || "User";
+  }
+
+  public setEmail(email:string){
+    localStorage.setItem("email" , email);
+  }
+
+  public getEmail() : string{
+    return localStorage.getItem("email") || "";
+  }
+
   public clear(){
     localStorage.clear();
   }
