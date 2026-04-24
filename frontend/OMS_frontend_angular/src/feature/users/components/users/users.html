@@ -17,7 +17,7 @@
     <div *ngIf="showCreateForm" class="bg-white rounded-xl shadow-sm p-6 mb-6">
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Create New User</h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-gray-700">Name</label>
           <input type="text" [(ngModel)]="newUser.name" placeholder="Full name" class="px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
@@ -25,10 +25,6 @@
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-gray-700">Email</label>
           <input type="email" [(ngModel)]="newUser.email" placeholder="Email address" class="px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-        </div>
-        <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Password</label>
-          <input type="password" [(ngModel)]="newUser.password" placeholder="Password" class="px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-gray-700">Role</label>
@@ -44,7 +40,7 @@
           <span *ngIf="!isCreating">Create User</span>
           <span *ngIf="isCreating">Creating...</span>
         </button>
-        <button type="button" (click)="showCreateForm = false; newUser = { name: '', email: '', password: '', role: '' }" class="border px-5 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+        <button type="button" (click)="showCreateForm = false; newUser = { name: '', email: '', role: '' }" class="border px-5 py-2 rounded-lg hover:bg-gray-100 transition-colors">
           Cancel
         </button>
       </div>

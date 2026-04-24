@@ -52,7 +52,7 @@ export class Users implements OnInit {
 
   roles = ['ADMINISTRATOR', 'SALES_REPRESENTATIVE', 'PRODUCT_MANAGER', 'FINANCE_MANAGER', 'BUSINESS_ANALYST', 'PURCHASING_OFFICER'];
 
-  newUser = { name: '', email: '', password: '', role: '' };
+  newUser = { name: '', email: '', role: '' };
 
   editingUserId: number | null = null;
   editData: { name: string; email: string; role: string } = { name: '', email: '', role: '' };
@@ -89,20 +89,20 @@ export class Users implements OnInit {
   }
 
   createUser() {
-    if (!this.newUser.name || !this.newUser.email || !this.newUser.password || !this.newUser.role) {
+    if (!this.newUser.name || !this.newUser.email || !this.newUser.role) {
       this.snackBar.open('Please fill in all fields', 'Close', { duration: 3000 });
       return;
     }
 
     this.isCreating = true;
-    this.http.post<UserRow>(`${environment.baseUrl}/api/auth/register`, this.newUser).subscribe({
+    this.http.post<UserRow>(`${environment.baseUrl}/api/users`, this.newUser).subscribe({
       next: () => {
-        this.snackBar.open('User created successfully!', 'Close', {
-          duration: 3000,
+        this.snackBar.open('User created! An email with set password link has been sent.', 'Close', {
+          duration: 5000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
         });
-        this.newUser = { name: '', email: '', password: '', role: '' };
+        this.newUser = { name: '', email: '', role: '' };
         this.showCreateForm = false;
         this.isCreating = false;
         this.loadUsers();

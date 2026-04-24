@@ -10,7 +10,13 @@ import OMS_backend.exception.ResourceNotFoundException;
 import OMS_backend.model.Role;
 import OMS_backend.model.User;
 import OMS_backend.repository.UserRepository;
+import OMS_backend.repository.PasswordResetTokenRepository;
+import OMS_backend.model.PasswordResetToken;
+import OMS_backend.dto.request.CreateUserRequest;
+import OMS_backend.dto.request.SetPasswordRequest;
 import OMS_backend.security.JwtUtil;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +39,8 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final EmailService emailService;
 
     // registration
     public UserResponse registerUser(RegisterRequest request) {
@@ -63,6 +71,63 @@ public class UserService {
         log.info("User registered successfully. userId={}, email={}", savedUser.getUserId(), savedUser.getEmail());
 
         return mapToResponse(savedUser);
+    }
+
+    // create user by admin
+    public UserResponse createUserByAdmin(CreateUserRequest request) {
+        log.info("Admin creating user. email={}", request.getEmail());
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            log.warn("Creation failed - email already exists. email={}", request.getEmail());
+            throw new DuplicateResourceException("Email already registered");
+        }
+
+        Role role;
+        try {
+            role = Role.valueOf(request.getRole().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            log.error("Invalid role provided during creation. role={}", request.getRole());
+            throw new IllegalArgumentException("Invalid role: " + request.getRole());
+        }
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // dummy password
+        user.setRole(role);
+
+        User savedUser = userRepository.save(user);
+
+        // Generate token
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(savedUser);
+        resetToken.setExpiryDate(LocalDateTime.now().plusHours(24));
+        tokenRepository.save(resetToken);
+
+        // Send email
+        emailService.sendSetPasswordEmail(savedUser.getEmail(), savedUser.getName(), token);
+
+        log.info("User created successfully by admin. userId={}, email={}", savedUser.getUserId(), savedUser.getEmail());
+
+        return mapToResponse(savedUser);
+    }
+
+    public void setPassword(SetPasswordRequest request) {
+        PasswordResetToken resetToken = tokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
+
+        if (resetToken.isExpired()) {
+            throw new IllegalArgumentException("Token has expired");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        tokenRepository.delete(resetToken);
+        log.info("Password set successfully for user. email={}", user.getEmail());
     }
 
     // login

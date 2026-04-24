@@ -2,6 +2,7 @@ package OMS_backend.controller;
 
 import OMS_backend.dto.request.LoginRequest;
 import OMS_backend.dto.request.RegisterRequest;
+import OMS_backend.dto.request.SetPasswordRequest;
 import OMS_backend.dto.response.AuthResponse;
 import OMS_backend.dto.response.UserResponse;
 import OMS_backend.service.UserService;
@@ -33,5 +34,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = userService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Set Password", description = "Sets password for a new user using the token sent to their email")
+    @PostMapping("/set-password")
+    public ResponseEntity<String> setPassword(@Valid @RequestBody SetPasswordRequest request) {
+        userService.setPassword(request);
+        return ResponseEntity.ok("Password set successfully");
     }
 }

@@ -1,11 +1,13 @@
 package OMS_backend.controller;
 
+import OMS_backend.dto.request.CreateUserRequest;
 import OMS_backend.dto.request.UpdateUserRequest;
 import OMS_backend.dto.response.UserResponse;
 import OMS_backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,13 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
+    @Operation(summary = "Create user", description = "Creates a new user. ADMINISTRATOR only.")
+    @PostMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        return new ResponseEntity<>(userService.createUserByAdmin(request), HttpStatus.CREATED);
+    }
 
     @Operation(summary = "Get all users", description = "Returns list of all users. ADMINISTRATOR only.")
     @GetMapping
