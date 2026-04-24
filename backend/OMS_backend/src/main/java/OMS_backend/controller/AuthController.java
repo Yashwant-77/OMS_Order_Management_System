@@ -42,4 +42,18 @@ public class AuthController {
         userService.setPassword(request);
         return ResponseEntity.ok("Password set successfully");
     }
+
+    @Operation(summary = "Forgot Password", description = "Sends an OTP to the user's email if the role and email match")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody OMS_backend.dto.request.ForgotPasswordRequest request) {
+        userService.forgotPassword(request);
+        return ResponseEntity.ok("If the email and role match an active account, an OTP will be sent.");
+    }
+
+    @Operation(summary = "Reset Password with OTP", description = "Resets the password using the OTP sent to email")
+    @PostMapping("/reset-password-otp")
+    public ResponseEntity<String> resetPasswordWithOtp(@Valid @RequestBody OMS_backend.dto.request.ResetPasswordWithOtpRequest request) {
+        userService.resetPasswordWithOtp(request);
+        return ResponseEntity.ok("Password reset successfully");
+    }
 }
