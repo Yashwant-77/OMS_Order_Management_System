@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -149,5 +150,39 @@ public class ReportService {
         log.info("Payment summary generated for {} payment methods", list.size());
 
         return list;
+    }
+
+    private static final List<String> MONTH_NAMES = Arrays.asList(
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    );
+
+    // monthly order trend report
+    public List<MonthlyOrderTrendReport> getMonthlyOrderTrend(int year) {
+        log.info("Generating Monthly Order Trend Report for year={}", year);
+
+        return salesOrderRepository.getMonthlyOrderTrend(year).stream()
+                .map(row -> {
+                    int monthNum = ((Number) row[0]).intValue();
+                    long count   = ((Number) row[1]).longValue();
+                    double value = ((Number) row[2]).doubleValue();
+                    String monthName = MONTH_NAMES.get(monthNum - 1);
+                    return new MonthlyOrderTrendReport(monthName, monthNum, count, value);
+                })
+                .collect(Collectors.toList());
+    }
+
+    // monthly payment trend report
+    public List<MonthlyPaymentTrendReport> getMonthlyPaymentTrend(int year) {
+        log.info("Generating Monthly Payment Trend Report for year={}", year);
+
+        return paymentRepository.getMonthlyPaymentTrend(year).stream()
+                .map(row -> {
+                    int monthNum   = ((Number) row[0]).intValue();
+                    double total   = ((Number) row[1]).doubleValue();
+                    String monthName = MONTH_NAMES.get(monthNum - 1);
+                    return new MonthlyPaymentTrendReport(monthName, monthNum, total);
+                })
+                .collect(Collectors.toList());
     }
 }

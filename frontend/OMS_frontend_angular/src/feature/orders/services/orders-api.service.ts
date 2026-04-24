@@ -27,6 +27,9 @@ export class ApiOrders {
     return this.http.get<any>(`${environment.baseUrl}/api/orders/filteredOrders`, { params });
   }
 
+  public getAllOrders() {
+    return this.http.get<any[]>(`${environment.baseUrl}/api/orders`);
+  }
 
   public deleteOrder(orderId:number) {
     return this.http.delete(`${environment.baseUrl}/api/orders/${orderId}` );

@@ -1,1 +1,168 @@
-<p>invoice works!</p>
+<div class="mx-1 mt-1 flex-1 bg-gray-50 overflow-x-hidden overflow-y-auto">
+  <div class="p-6 bg-gray-50 min-h-[85vh] rounded-2xl">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-xl font-semibold">Invoice Management</h1>
+        <p class="text-gray-500 text-sm">Generate invoices for fulfilled orders and record payments.</p>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex justify-center items-center h-60">
+      <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+    </div>
+
+    <div *ngIf="!isLoading">
+
+      <!-- Generate Invoice Card -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-1">Generate Invoice</h2>
+        <p class="text-gray-500 text-sm mb-4">Select a fulfilled order (not yet invoiced) to generate an invoice.</p>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <select [(ngModel)]="selectedOrderId" class="flex-1 min-w-[240px] px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <option [ngValue]="null" disabled selected>Select an order...</option>
+            <option *ngFor="let order of eligibleOrders" [ngValue]="order.salesOrderId">
+              #{{ order.salesOrderId }} — {{ order.customerName }} (₹{{ order.totalAmount | number:'1.0-0' }})
+            </option>
+          </select>
+
+          <button
+            type="button"
+            (click)="generateInvoice()"
+            [disabled]="!selectedOrderId || isGeneratingInvoice"
+            class="text-white px-5 py-2 rounded-lg flex items-center justify-center gap-2 bg-[#3f51b5] hover:bg-[#5c6bc0] disabled:bg-[#5c6bc0] disabled:cursor-not-allowed disabled:opacity-70 transition-colors min-w-[150px]">
+            <span *ngIf="!isGeneratingInvoice">Generate Invoice</span>
+            <mat-progress-spinner *ngIf="isGeneratingInvoice" diameter="18" mode="indeterminate" class="text-white"></mat-progress-spinner>
+          </button>
+        </div>
+
+        <p *ngIf="!eligibleOrders.length" class="text-gray-400 text-sm mt-3">
+          No orders eligible for invoicing (must be confirmed / shipped / delivered and not yet invoiced).
+        </p>
+      </div>
+
+      <!-- Invoices Table -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold mb-4">All Invoices</h2>
+
+        <div *ngIf="!invoices.length" class="text-gray-400 text-sm">No invoices found.</div>
+
+        <div *ngIf="invoices.length" class="overflow-x-auto rounded-lg">
+          <table class="min-w-[900px] w-full text-left">
+            <thead class="bg-gray-100 text-gray-600 text-sm sticky top-0">
+              <tr>
+                <th class="p-4">Invoice #</th>
+                <th class="p-4">Order #</th>
+                <th class="p-4">Customer</th>
+                <th class="p-4">Invoice Date</th>
+                <th class="p-4">Total</th>
+                <th class="p-4">Paid</th>
+                <th class="p-4">Outstanding</th>
+                <th class="p-4">Status</th>
+                <th class="p-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let invoice of invoices">
+                <!-- Invoice Row -->
+                <tr class="border-t hover:bg-gray-50 cursor-pointer transition-colors" (click)="toggleInvoicePayments(invoice.invoiceId)">
+                  <td class="p-4">#{{ invoice.invoiceId }}</td>
+                  <td class="p-4">#{{ invoice.salesOrderId }}</td>
+                  <td class="p-4">{{ invoice.customerName }}</td>
+                  <td class="p-4">{{ invoice.invoiceDate | date:'dd MMM yyyy' }}</td>
+                  <td class="p-4">₹{{ invoice.totalAmount | number:'1.0-0' }}</td>
+                  <td class="p-4 text-green-600 font-medium">₹{{ invoice.paidAmount | number:'1.0-0' }}</td>
+                  <td class="p-4 font-medium" [ngClass]="{'text-red-600': invoice.outstandingAmount > 0}">
+                    ₹{{ invoice.outstandingAmount | number:'1.0-0' }}
+                  </td>
+                  <td class="p-4">
+                    <span class="px-3 py-1 rounded-full text-sm font-medium"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': invoice.status === 'PAID',
+                        'bg-yellow-100 text-yellow-800': invoice.status === 'PARTIALLY_PAID',
+                        'bg-red-100 text-red-800': invoice.status === 'PENDING'
+                      }">
+                      {{ invoice.status | titlecase }}
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md text-sm transition-colors whitespace-nowrap" type="button">
+                      {{ expandedInvoiceId === invoice.invoiceId ? '▲ Hide' : '▼ Payments' }}
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Payment Panel -->
+                <tr *ngIf="expandedInvoiceId === invoice.invoiceId">
+                  <td colspan="9" class="p-0 bg-gray-50">
+                    <div class="p-6 border-t border-dashed border-gray-300">
+
+                      <!-- Payment History -->
+                      <div class="mb-4" *ngIf="paymentsMap[invoice.invoiceId]?.length">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Payment History</h4>
+                        <table class="w-full text-sm text-left">
+                          <thead class="bg-gray-200 text-gray-600">
+                            <tr>
+                              <th class="py-2 px-3">Payment #</th>
+                              <th class="py-2 px-3">Date</th>
+                              <th class="py-2 px-3">Amount</th>
+                              <th class="py-2 px-3">Method</th>
+                              <th class="py-2 px-3">Notes</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let p of paymentsMap[invoice.invoiceId]" class="border-t border-gray-200">
+                              <td class="py-2 px-3">#{{ p.paymentId }}</td>
+                              <td class="py-2 px-3">{{ p.paymentDate | date:'dd MMM yyyy' }}</td>
+                              <td class="py-2 px-3">₹{{ p.amount | number:'1.0-0' }}</td>
+                              <td class="py-2 px-3">{{ p.paymentMethod | titlecase }}</td>
+                              <td class="py-2 px-3">{{ p.notes || '—' }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <p *ngIf="!paymentsMap[invoice.invoiceId]?.length" class="text-gray-400 text-sm mb-4">No payments recorded yet.</p>
+
+                      <!-- Record Payment Form -->
+                      <div *ngIf="invoice.status !== 'PAID'" class="border-t border-gray-200 pt-4 mt-2">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Record Payment</h4>
+                        <div class="flex flex-wrap items-center gap-3">
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="Amount (₹)"
+                            [(ngModel)]="getPaymentState(invoice.invoiceId).amount"
+                            class="px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 w-32" />
+
+                          <select [(ngModel)]="getPaymentState(invoice.invoiceId).paymentMethod" class="px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                            <option *ngFor="let method of paymentMethods" [value]="method">{{ method | titlecase }}</option>
+                          </select>
+
+                          <input
+                            type="text"
+                            placeholder="Notes (optional)"
+                            [(ngModel)]="getPaymentState(invoice.invoiceId).notes"
+                            class="flex-1 min-w-[200px] px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+
+                          <button type="button" (click)="recordPayment(invoice)" class="text-white px-4 py-2 rounded-lg bg-[#3f51b5] hover:bg-[#5c6bc0] transition-colors text-sm">
+                            Record
+                          </button>
+                        </div>
+                      </div>
+
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

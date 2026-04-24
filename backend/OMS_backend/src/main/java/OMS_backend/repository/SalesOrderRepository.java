@@ -30,4 +30,16 @@ GROUP BY MONTH(o.orderDate)
 ORDER BY MONTH(o.orderDate)
 """)
     List<Object[]> getMonthlyOrders();
+
+    @Query("""
+SELECT MONTH(o.orderDate) as monthNum,
+       COUNT(o) as orderCount,
+       COALESCE(SUM(o.totalAmount), 0) as totalValue
+FROM SalesOrder o
+WHERE YEAR(o.orderDate) = :year
+  AND o.status != 'CANCELLED'
+GROUP BY MONTH(o.orderDate)
+ORDER BY MONTH(o.orderDate)
+""")
+    List<Object[]> getMonthlyOrderTrend(int year);
 }

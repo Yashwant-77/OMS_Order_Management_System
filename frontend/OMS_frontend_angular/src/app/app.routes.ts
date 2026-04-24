@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from '../feature/auth/pages/login/login';
+import { SetPassword } from '../feature/auth/pages/set-password/set-password';
 import { HomeLayout } from './layouts/home-layout/home-layout';
 import { authGuard } from './guards/auth-guard';
 import { Orders } from '../feature/orders/components/view-orders/view-orders';
@@ -17,6 +18,11 @@ export const routes: Routes = [
   {
     path: 'login',
     component: Login,
+    pathMatch: 'full',
+  },
+  {
+    path: 'set-password',
+    component: SetPassword,
     pathMatch: 'full',
   },
 

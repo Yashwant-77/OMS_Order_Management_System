@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router, RouterModule } from '@angular/router';
-import { environment } from '../../../../environments/environment';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { UserService } from '../../../../app/services/user/user.service';
+import { PurchaseApiService } from '../../services/purchase-api.service';
 
 interface Product {
   productId: number;
@@ -21,30 +21,30 @@ interface Product {
 interface Supplier {
   supplierId: number;
   name: string;
-  email: string;
-  phone: string;
-  address: string;
 }
 
-interface LowStockProduct {
-  productId: number;
-  productName: string;
-  quantityInStock: number;
-  unitPrice: number;
-}
-
-interface PurchaseItem {
+interface PurchaseOrderItem {
   productId: number | null;
   quantity: number;
   unitPrice: number;
+  productName?: string;
+}
+
+interface PurchaseOrder {
+  purchaseOrderId: number;
+  supplierName: string;
+  totalAmount: number;
+  orderDate: string;
+  status: string;
+  items: { productName: string; quantity: number }[];
 }
 
 @Component({
   selector: 'app-purchase',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -56,140 +56,206 @@ interface PurchaseItem {
 })
 export class Purchase implements OnInit {
   constructor(
-    private http: HttpClient,
+    private purchaseApi: PurchaseApiService,
+    private snackBar: MatSnackBar,
     private userService: UserService,
     private router: Router,
-    private snack: MatSnackBar,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  @ViewChild('purchaseForm') form!: NgForm;
+  isLoading = false;
+  isCreateOpen = false;
+  isDropdownOpen = false;
 
-  purchaseOrders: any[] = [];
-  filteredOrders: any[] = [];
-  paginatedOrders: any[] = [];
-  suppliers: Supplier[] = [];
   products: Product[] = [];
-  lowStockProducts: LowStockProduct[] = [];
+  suppliers: Supplier[] = [];
+  lowStockProducts: Product[] = [];
+  allOrders: PurchaseOrder[] = [];
+  filteredOrders: PurchaseOrder[] = [];
+  paginatedOrders: PurchaseOrder[] = [];
 
   statuses = ['PENDING', 'APPROVED', 'SHIPPED', 'RECEIVED', 'CANCELLED'];
   selectedStatus = '';
   searchText = '';
-  isDropdownOpen = false;
-  isLoading = false;
-  isCreateOpen = false;
   lowStockThreshold = 10;
 
   currentPage = 0;
-  itemsPerPage = 10;
+  pageSize = 8;
   totalPages = 0;
+  visiblePages: number[] = [];
 
-  purchaseOrder = {
-    supplierId: null as number | null,
-    items: [
-      {
-        productId: null,
-        quantity: 1,
-        unitPrice: 0,
-      } as PurchaseItem,
-    ],
+  purchaseOrder: { supplierId: number | null; totalAmount: number; items: PurchaseOrderItem[] } = {
+    supplierId: null,
     totalAmount: 0,
+    items: [{ productId: null, quantity: 1, unitPrice: 0 }],
   };
 
   ngOnInit(): void {
-    this.loadInitialData();
+    this.loadData();
   }
 
-  loadInitialData() {
+  loadData() {
     this.isLoading = true;
-
-    this.getPurchaseOrders();
-    this.getSuppliers();
-    this.getProducts();
-    this.getLowStockProducts();
-  }
-
-  getPurchaseOrders() {
-    this.http.get<any[]>(`${environment.baseUrl}/api/purchase-orders`).subscribe({
-      next: (res) => {
-        this.purchaseOrders = res || [];
+    forkJoin({
+      products: this.purchaseApi.getAllProducts(),
+      suppliers: this.purchaseApi.getAllSuppliers(),
+      orders: this.purchaseApi.getAllPurchaseOrders(),
+    }).subscribe({
+      next: ({ products, suppliers, orders }) => {
+        this.products = (products as Product[]) || [];
+        this.suppliers = (suppliers as Supplier[]) || [];
+        this.allOrders = ((orders as PurchaseOrder[]) || []).sort(
+          (a, b) => b.purchaseOrderId - a.purchaseOrderId,
+        );
         this.applyFilters();
+        this.getLowStockProducts();
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
-        console.error('Error fetching purchase orders', err);
-        this.handleAuthError(err);
-      },
-    });
-  }
-
-  getSuppliers() {
-    this.http.get<Supplier[]>(`${environment.baseUrl}/api/suppliers`).subscribe({
-      next: (res) => {
-        this.suppliers = res || [];
+        this.handleError(err, 'Unable to load purchase orders');
         this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching suppliers', err);
-        this.handleAuthError(err);
-      },
-    });
-  }
-
-  getProducts() {
-    this.http.get<Product[]>(`${environment.baseUrl}/api/products`).subscribe({
-      next: (res) => {
-        this.products = res || [];
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching products', err);
-        this.handleAuthError(err);
       },
     });
   }
 
   getLowStockProducts() {
-    const params = new HttpParams().set('threshold', this.lowStockThreshold);
-
-    this.http.get<LowStockProduct[]>(`${environment.baseUrl}/api/reports/products/low-stock`, { params }).subscribe({
-      next: (res) => {
-        this.lowStockProducts = res || [];
+    this.purchaseApi.getLowStockProducts(this.lowStockThreshold).subscribe({
+      next: (res: any) => {
+        this.lowStockProducts = (res as Product[]) || [];
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error fetching stock alerts', err);
-        this.handleAuthError(err);
+      error: () => {
+        this.lowStockProducts = [];
       },
     });
+  }
+
+  addAlertToPurchaseOrder(product: Product) {
+    if (!this.isCreateOpen) {
+      this.isCreateOpen = true;
+    }
+    const existing = this.purchaseOrder.items.find((i) => i.productId === product.productId);
+    if (!existing) {
+      this.purchaseOrder.items.push({
+        productId: product.productId,
+        quantity: 1,
+        unitPrice: product.unitPrice,
+        productName: product.productName,
+      });
+      this.calculateTotal();
+    }
   }
 
   toggleCreateForm() {
     this.isCreateOpen = !this.isCreateOpen;
+    if (!this.isCreateOpen) {
+      this.resetForm();
+    }
   }
 
-  toggleDropdown() {
-    this.isDropdownOpen = !this.isDropdownOpen;
+  addItem() {
+    this.purchaseOrder.items.push({ productId: null, quantity: 1, unitPrice: 0 });
+  }
+
+  removeItem(index: number) {
+    this.purchaseOrder.items.splice(index, 1);
+    if (!this.purchaseOrder.items.length) {
+      this.addItem();
+    }
+    this.calculateTotal();
+  }
+
+  onProductSelect(index: number) {
+    const item = this.purchaseOrder.items[index];
+    const product = this.products.find((p) => p.productId === item.productId);
+    if (product) {
+      item.unitPrice = product.unitPrice;
+      item.productName = product.productName;
+    }
+    this.calculateTotal();
+  }
+
+  calculateTotal() {
+    this.purchaseOrder.totalAmount = this.purchaseOrder.items.reduce(
+      (sum, item) => sum + (item.quantity || 0) * (item.unitPrice || 0),
+      0,
+    );
+  }
+
+  createPurchaseOrder() {
+    if (!this.purchaseOrder.supplierId || !this.purchaseOrder.items.length) {
+      return;
+    }
+
+    const payload = {
+      supplierId: this.purchaseOrder.supplierId,
+      items: this.purchaseOrder.items
+        .filter((i) => i.productId && i.quantity > 0)
+        .map((i) => ({ productId: i.productId, quantity: i.quantity, unitPrice: i.unitPrice })),
+    };
+
+    this.purchaseApi.createPurchaseOrder(payload).subscribe({
+      next: () => {
+        this.snackBar.open('Purchase order created!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+        this.resetForm();
+        this.isCreateOpen = false;
+        this.loadData();
+      },
+      error: (err) => this.handleError(err, 'Failed to create purchase order'),
+    });
+  }
+
+  updateStatus(order: PurchaseOrder, newStatus: string) {
+    this.purchaseApi.updatePurchaseOrderStatus(order.purchaseOrderId, newStatus).subscribe({
+      next: (updated: any) => {
+        order.status = (updated as PurchaseOrder).status;
+        this.cdr.detectChanges();
+      },
+      error: (err) => this.handleError(err, 'Failed to update status'),
+    });
+  }
+
+  cancelPurchaseOrder(orderId: number) {
+    this.purchaseApi.cancelPurchaseOrder(orderId).subscribe({
+      next: () => {
+        this.snackBar.open('Order cancelled.', 'Close', { duration: 3000 });
+        this.loadData();
+      },
+      error: (err) => this.handleError(err, 'Failed to cancel purchase order'),
+    });
+  }
+
+  resetForm() {
+    this.purchaseOrder = {
+      supplierId: null,
+      totalAmount: 0,
+      items: [{ productId: null, quantity: 1, unitPrice: 0 }],
+    };
   }
 
   applyFilters() {
-    const search = this.searchText.trim().toLowerCase();
+    let result = [...this.allOrders];
 
-    this.filteredOrders = this.purchaseOrders.filter((order) => {
-      const matchesStatus = !this.selectedStatus || order.status === this.selectedStatus;
-      const matchesSearch =
-        !search ||
-        order.supplierName?.toLowerCase().includes(search) ||
-        String(order.purchaseOrderId).includes(search);
+    if (this.selectedStatus) {
+      result = result.filter((o) => o.status === this.selectedStatus);
+    }
 
-      return matchesStatus && matchesSearch;
-    });
+    if (this.searchText.trim()) {
+      const term = this.searchText.toLowerCase();
+      result = result.filter((o) => o.supplierName?.toLowerCase().includes(term));
+    }
 
-    this.totalPages = Math.ceil(this.filteredOrders.length / this.itemsPerPage);
-    this.currentPage = Math.min(this.currentPage, Math.max(this.totalPages - 1, 0));
-    this.setPaginatedOrders();
+    this.filteredOrders = result;
+    this.totalPages = Math.ceil(this.filteredOrders.length / this.pageSize);
+    this.currentPage = 0;
+    this.buildVisiblePages();
+    this.paginate();
   }
 
   applyStatusFilter(status: string) {
@@ -202,211 +268,46 @@ export class Purchase implements OnInit {
   clearFilters() {
     this.searchText = '';
     this.selectedStatus = '';
-    this.currentPage = 0;
     this.applyFilters();
   }
 
-  setPaginatedOrders() {
-    const start = this.currentPage * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    this.paginatedOrders = this.filteredOrders.slice(start, end);
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 
   changePage(page: number) {
-    if (page >= 0 && page < this.totalPages) {
-      this.currentPage = page;
-      this.setPaginatedOrders();
-    }
+    if (page < 0 || page >= this.totalPages) return;
+    this.currentPage = page;
+    this.buildVisiblePages();
+    this.paginate();
   }
 
-  get visiblePages() {
-    const pages = [];
-    const start = Math.max(0, this.currentPage - 2);
-    const end = Math.min(this.totalPages - 1, this.currentPage + 2);
+  paginate() {
+    const start = this.currentPage * this.pageSize;
+    this.paginatedOrders = this.filteredOrders.slice(start, start + this.pageSize);
+  }
 
-    for (let i = start; i <= end; i++) {
+  buildVisiblePages() {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    const pages: number[] = [];
+    const range = 2;
+    for (let i = Math.max(0, current - range); i <= Math.min(total - 1, current + range); i++) {
       pages.push(i);
     }
-
-    return pages;
+    this.visiblePages = pages;
   }
 
-  addItem() {
-    this.purchaseOrder.items.push({
-      productId: null,
-      quantity: 1,
-      unitPrice: 0,
-    });
-  }
-
-  removeItem(index: number) {
-    this.purchaseOrder.items.splice(index, 1);
-
-    if (!this.purchaseOrder.items.length) {
-      this.addItem();
-    }
-
-    this.calculateTotal();
-  }
-
-  onProductSelect(index: number) {
-    const product = this.products.find((p) => {
-      return p.productId === this.purchaseOrder.items[index].productId;
-    });
-
-    if (product) {
-      this.purchaseOrder.items[index].unitPrice = product.unitPrice || 0;
-    }
-
-    this.calculateTotal();
-  }
-
-  addAlertToPurchaseOrder(product: LowStockProduct) {
-    this.isCreateOpen = true;
-
-    const existingItem = this.purchaseOrder.items.find((item) => {
-      return item.productId === product.productId;
-    });
-
-    if (existingItem) {
-      existingItem.quantity += this.getSuggestedQuantity(product);
-    } else {
-      const emptyItem = this.purchaseOrder.items.find((item) => !item.productId);
-      const newItem = {
-        productId: product.productId,
-        quantity: this.getSuggestedQuantity(product),
-        unitPrice: product.unitPrice || 0,
-      };
-
-      if (emptyItem) {
-        Object.assign(emptyItem, newItem);
-      } else {
-        this.purchaseOrder.items.push(newItem);
-      }
-    }
-
-    this.calculateTotal();
-    this.cdr.detectChanges();
-  }
-
-  getSuggestedQuantity(product: LowStockProduct): number {
-    return Math.max(this.lowStockThreshold - product.quantityInStock, 1);
-  }
-
-  calculateTotal() {
-    this.purchaseOrder.totalAmount = this.purchaseOrder.items.reduce((sum, item) => {
-      return sum + (item.quantity || 0) * (item.unitPrice || 0);
-    }, 0);
-  }
-
-  createPurchaseOrder() {
-    const payload = {
-      supplierId: this.purchaseOrder.supplierId,
-      items: this.purchaseOrder.items
-        .filter((item) => item.productId && item.quantity > 0)
-        .map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-        })),
-    };
-
-    if (!payload.supplierId || !payload.items.length) {
-      this.snack.open('Please select supplier and at least one product', 'Close', {
-        duration: 3000,
-      });
-      return;
-    }
-
-    this.isLoading = true;
-
-    this.http.post(`${environment.baseUrl}/api/purchase-orders`, payload).subscribe({
-      next: () => {
-        this.snack.open('Purchase order created successfully!', 'Close', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-        });
-        this.resetForm();
-        this.getPurchaseOrders();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.error('Error creating purchase order', err);
-        this.snack.open(err?.error?.message || 'Something went wrong', 'Close', {
-          duration: 3000,
-        });
-        this.handleAuthError(err);
-      },
-    });
-  }
-
-  updateStatus(order: any, status: string) {
-    const params = new HttpParams().set('status', status);
-
-    this.http.put(`${environment.baseUrl}/api/purchase-orders/${order.purchaseOrderId}/status`, {}, { params }).subscribe({
-      next: () => {
-        this.snack.open('Purchase order status updated successfully!', 'Close', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-        });
-        this.getPurchaseOrders();
-        this.getLowStockProducts();
-      },
-      error: (err) => {
-        console.error('Error updating purchase order status', err);
-        this.snack.open(err?.error?.message || 'Something went wrong', 'Close', {
-          duration: 3000,
-        });
-        this.handleAuthError(err);
-      },
-    });
-  }
-
-  cancelPurchaseOrder(orderId: number) {
-    this.http.delete(`${environment.baseUrl}/api/purchase-orders/${orderId}`, { responseType: 'text' }).subscribe({
-      next: () => {
-        this.snack.open('Purchase order cancelled successfully!', 'Close', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-        });
-        this.getPurchaseOrders();
-      },
-      error: (err) => {
-        console.error('Error cancelling purchase order', err);
-        this.snack.open(err?.error?.message || 'Something went wrong', 'Close', {
-          duration: 3000,
-        });
-        this.handleAuthError(err);
-      },
-    });
-  }
-
-  resetForm() {
-    this.form?.resetForm();
-    this.purchaseOrder = {
-      supplierId: null,
-      items: [
-        {
-          productId: null,
-          quantity: 1,
-          unitPrice: 0,
-        },
-      ],
-      totalAmount: 0,
-    };
-  }
-
-  getRole(): string {
+  getRole() {
     return this.userService.getRole();
   }
 
-  private handleAuthError(err: any) {
+  private handleError(err: any, fallback: string) {
     if (err.status === 401) {
       this.userService.clear();
       this.router.navigate(['/login']);
+      return;
     }
+    this.snackBar.open(err?.error?.message || fallback, 'Close', { duration: 3000 });
   }
 }

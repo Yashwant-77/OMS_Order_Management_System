@@ -23,4 +23,14 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     // sum amount per payment method
     @Query("SELECT COALESCE(SUM(p.amount), 0) " + "FROM Payment p WHERE p.paymentMethod = :method")
     double sumAmountByPaymentMethod(PaymentMethod method);
+
+    @Query("""
+SELECT MONTH(p.paymentDate) as monthNum,
+       COALESCE(SUM(p.amount), 0) as totalAmount
+FROM Payment p
+WHERE YEAR(p.paymentDate) = :year
+GROUP BY MONTH(p.paymentDate)
+ORDER BY MONTH(p.paymentDate)
+""")
+    List<Object[]> getMonthlyPaymentTrend(int year);
 }
