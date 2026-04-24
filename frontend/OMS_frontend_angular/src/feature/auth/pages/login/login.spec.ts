@@ -44,7 +44,7 @@ describe('Login Component', () => {
     component.credential = { email: '', password: '', role: '' };
     component.doSubmitForm();
     
-    expect(component['snak'].open).toHaveBeenCalledWith('Fields can not be empty !');
+    expect(component['snak'].open).toHaveBeenCalledWith('Fields can not be empty !', 'Close', { duration: 2500 });
     expect(mockAuthApiService.callLogin).not.toHaveBeenCalled();
   });
 
@@ -78,6 +78,7 @@ describe('Login Component', () => {
     component.doSubmitForm();
     
     expect(component.isLoading).toBe(false);
+    expect(component['snak'].open).toHaveBeenCalledWith('Failed to login , try again !', 'Close', { duration: 2500 });
     expect(router.navigate).not.toHaveBeenCalled();
   });
 });

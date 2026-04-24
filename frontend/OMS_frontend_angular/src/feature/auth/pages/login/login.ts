@@ -52,7 +52,7 @@ export class Login {
       this.credential.password == '' ||
       this.credential.role == ''
     ) {
-      this.snak.open('Failed to login , try again !', 'Close', {
+      this.snak.open('Fields can not be empty !', 'Close', {
           duration: 2500,
         });
       return;
