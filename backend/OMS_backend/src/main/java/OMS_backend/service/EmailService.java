@@ -23,6 +23,11 @@ public class EmailService {
             // URL format depends on frontend routing. 
             // The frontend is usually hosted on localhost:4200 during dev
             String resetUrl = "http://localhost:4200/set-password?token=" + token;
+
+            log.info("===================================================================");
+            log.info("ATTENTION: User needs to set their password using the following link:");
+            log.info(resetUrl);
+            log.info("===================================================================");
             
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
@@ -39,7 +44,7 @@ public class EmailService {
             mailSender.send(message);
             log.info("Set password email sent successfully to {}", to);
         } catch (Exception e) {
-            log.error("Failed to send set password email to {}", to, e);
+            log.error("Failed to send set password email to {}. Reason: {}", to, e.getMessage());
         }
     }
 }

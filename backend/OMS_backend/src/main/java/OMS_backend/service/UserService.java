@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -95,6 +96,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // dummy password
         user.setRole(role);
+        user.setStatus("PENDING");
 
         User savedUser = userRepository.save(user);
 
@@ -114,6 +116,7 @@ public class UserService {
         return mapToResponse(savedUser);
     }
 
+    @Transactional
     public void setPassword(SetPasswordRequest request) {
         PasswordResetToken resetToken = tokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
@@ -124,6 +127,7 @@ public class UserService {
 
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setStatus("ACTIVE");
         userRepository.save(user);
 
         tokenRepository.delete(resetToken);
@@ -249,14 +253,19 @@ public class UserService {
         return mapToResponse(updatedUser);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
 
         log.info("Deleting user. id={}", id);
 
-        if (!userRepository.existsById(id)) {
-            log.error("User not found for deletion. id={}", id);
-            throw new ResourceNotFoundException("User not found with id: " + id);
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("User not found for deletion. id={}", id);
+                    return new ResourceNotFoundException("User not found with id: " + id);
+                });
+
+        // Delete the associated password reset token first to prevent foreign key violation
+        tokenRepository.deleteByUser(user);
 
         userRepository.deleteById(id);
 
@@ -270,7 +279,8 @@ public class UserService {
                 user.getUserId(),
                 user.getName(),
                 user.getEmail(),
-                user.getRole().name()
+                user.getRole().name(),
+                user.getStatus() != null ? user.getStatus() : "ACTIVE"
         );
     }
 }
