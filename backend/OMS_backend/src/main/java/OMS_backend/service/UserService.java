@@ -13,6 +13,8 @@ import OMS_backend.repository.UserRepository;
 import OMS_backend.repository.PasswordResetTokenRepository;
 import OMS_backend.model.PasswordResetToken;
 import OMS_backend.dto.request.CreateUserRequest;
+import OMS_backend.dto.request.ForgotPasswordRequest;
+import OMS_backend.dto.request.ResetPasswordWithOtpRequest;
 import OMS_backend.dto.request.SetPasswordRequest;
 import OMS_backend.security.JwtUtil;
 import java.time.LocalDateTime;
@@ -132,6 +134,66 @@ public class UserService {
 
         tokenRepository.delete(resetToken);
         log.info("Password set successfully for user. email={}", user.getEmail());
+    }
+
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        log.info("Forgot password requested for email={}", request.getEmail());
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
+
+        Role expectedRole;
+        try {
+            expectedRole = Role.valueOf(request.getRole().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid role provided");
+        }
+
+        if (!user.getRole().equals(expectedRole)) {
+            throw new BadCredentialsException("Role does not match our records for this user");
+        }
+
+        // Generate 6 digit OTP
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+
+        // Delete any existing tokens for this user to avoid confusion
+        tokenRepository.deleteByUser(user);
+        tokenRepository.flush();
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(otp);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+        tokenRepository.save(resetToken);
+
+        emailService.sendOtpEmail(user.getEmail(), user.getName(), otp);
+    }
+
+    @Transactional
+    public void resetPasswordWithOtp(ResetPasswordWithOtpRequest request) {
+        log.info("Resetting password with OTP for email={}", request.getEmail());
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        PasswordResetToken resetToken = tokenRepository.findByToken(request.getOtp())
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid OTP"));
+
+        if (!resetToken.getUser().getUserId().equals(user.getUserId())) {
+            throw new BadCredentialsException("Invalid OTP for this email");
+        }
+
+        if (resetToken.isExpired()) {
+            throw new IllegalArgumentException("OTP has expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setStatus("ACTIVE");
+        userRepository.save(user);
+
+        tokenRepository.delete(resetToken);
+        log.info("Password successfully reset via OTP for email={}", request.getEmail());
     }
 
     // login

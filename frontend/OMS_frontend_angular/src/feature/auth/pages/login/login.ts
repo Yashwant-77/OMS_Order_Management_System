@@ -16,11 +16,11 @@ import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule ,   MatFormFieldModule , MatIconModule , MatInputModule , MatSelectModule , MatDividerModule  ,FormsModule , MatButtonModule   , MatToolbarModule  , MatProgressSpinnerModule ],
+  imports: [CommonModule, RouterModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, MatDividerModule, FormsModule, MatButtonModule, MatToolbarModule, MatProgressSpinnerModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
