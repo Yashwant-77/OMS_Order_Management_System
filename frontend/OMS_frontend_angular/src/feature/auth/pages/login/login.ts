@@ -69,9 +69,11 @@ export class Login {
 
         // temporary according the bakend response
         this.userService.setRole(response.role);
+        this.userService.setEmail(response.email);
+        this.userService.setName(response.name);
         this.userService.setToken(response.token);
-        this.router.navigate(['/dashboard']);
-      },
+        this.router.navigate(['/dashboard'])
+      } ,
       (error) => {
         console.log(error);
         this.isLoading = false;

@@ -1,10 +1,74 @@
-<div class="max-w-5xl mx-auto mt-6 p-4">
+<div class="max-w-4xl mx-auto mt-10 p-4">
 
-  <!-- Profile Card -->
-  <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-5">
-
-   <h1 class="text-2xl font-bold">Work in progess, feature is comming soon...</h1>
-
+    <!-- Profile Card -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden relative">
+      
+      <!-- Top Banner -->
+      <div class="h-32 bg-[#3f51b5] w-full"></div>
+      
+      <!-- Avatar & Content -->
+      <div class="px-8 pb-8 flex flex-col items-center">
+        
+        <!-- Avatar Circle -->
+        <div class="w-32 h-32 rounded-full bg-white p-2 shadow-lg -mt-16 flex items-center justify-center mb-6">
+          <div class="w-full h-full rounded-full bg-indigo-100 flex items-center justify-center text-5xl font-bold text-[#3f51b5]">
+            {{ initials }}
+          </div>
+        </div>
+        
+        <!-- Main Info -->
+        <h1 class="text-3xl font-bold text-gray-800 mb-1">{{ name || 'Unknown User' }}</h1>
+        <p class="text-indigo-600 font-medium px-4 py-1 bg-indigo-50 rounded-full mb-8 text-sm border border-indigo-100">
+          <i class="fas fa-shield-alt mr-1"></i> {{ treatRoleName(role) || 'No Role' }}
+        </p>
+  
+        <!-- Details Grid -->
+        <div class="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex items-start gap-4 transition-all hover:shadow-md">
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+              <i class="fas fa-envelope text-xl"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Email Address</p>
+              <p class="text-gray-800 font-medium break-all">{{ email || 'Not Provided' }}</p>
+            </div>
+          </div>
+  
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex items-start gap-4 transition-all hover:shadow-md">
+            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 shrink-0">
+              <i class="fas fa-user-tag text-xl"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">System Role</p>
+              <p class="text-gray-800 font-medium">{{ treatRoleName(role) }}</p>
+            </div>
+          </div>
+  
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex items-start gap-4 transition-all hover:shadow-md">
+            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
+              <i class="fas fa-check-circle text-xl"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Account Status</p>
+              <p class="text-green-700 font-bold">Active</p>
+            </div>
+          </div>
+  
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex items-start gap-4 transition-all hover:shadow-md">
+            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+              <i class="fas fa-building text-xl"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Organization</p>
+              <p class="text-gray-800 font-medium">ABC Ltd.</p>
+            </div>
+          </div>
+  
+        </div>
+  
+      </div>
+  
+    </div>
+  
   </div>
-
-</div>
