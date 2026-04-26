@@ -68,7 +68,7 @@ class AuthControllerTest {
 
         userResponse = new UserResponse(
                 1L, "Vansh Batham",
-                "vansh@example.com", "SALES_REPRESENTATIVE");
+                "vansh@example.com", "SALES_REPRESENTATIVE", "ACTIVE");
 
         authResponse = new AuthResponse(
                 "mock.jwt.token", "Vansh Batham",

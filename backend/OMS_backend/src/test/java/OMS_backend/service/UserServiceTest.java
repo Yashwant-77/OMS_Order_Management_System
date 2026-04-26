@@ -206,7 +206,8 @@ class UserServiceTest {
     @Test
     @DisplayName("Delete user - Not found throws ResourceNotFoundException")
     void deleteUser_NotFound_ThrowsException() {
-        when(userRepository.existsById(99L)).thenReturn(false);
+
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteUser(99L))
                 .isInstanceOf(ResourceNotFoundException.class);
