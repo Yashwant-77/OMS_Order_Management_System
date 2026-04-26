@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: OMS_backend.controller.AuthControllerTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.203 s -- in OMS_backend.controller.AuthControllerTest

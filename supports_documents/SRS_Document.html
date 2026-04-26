@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Requirements Specification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #eee;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Software Requirements Specification (SRS)</h1>
+<h2>1. Introduction</h2>
+<h3>1.1 Purpose</h3>
+<p>The purpose of this document is to outline the software requirements for the Web-based Order Management System (OMS) developed for <strong>ABC Power Equipment Inc.</strong> This document serves as a guide for the development team, QA engineers, and project stakeholders by providing detailed functional and non-functional requirements, technical stack specifications, and system architectural details.</p>
+<h3>1.2 Document Conventions</h3>
+<p>This document is based on standard IEEE SRS guidelines and follows Agile user story mapping (Epics, User Stories).</p>
+<h3>1.3 Intended Audience and Reading Suggestions</h3>
+<p>This document is intended for:</p>
+<ul>
+<li>Project Managers and Scrum Masters</li>
+<li>Development Team (Front-end, Back-end, Database, DevOps)</li>
+<li>Quality Assurance (QA) Engineers</li>
+<li>Client Stakeholders (ABC Power Equipment Inc.)</li>
+</ul>
+<h3>1.4 Product Scope</h3>
+<p>The <strong>Web-based Order Management System (OMS)</strong> (Project Code: W-OMS01) aims to streamline and automate order processing, bill of materials (BOM) generation, purchase order creation, invoicing, and payment tracking. The primary goal is to reduce order processing time (from 5 to 2 days), improve invoice accuracy to 98%, and enhance the on-time delivery rate to 95%. </p>
+<h3>1.5 References</h3>
+<ul>
+<li>Database Design Document (<code>db_design.pdf</code>)</li>
+<li>Epic Document (<code>epic_document.pdf</code>)</li>
+<li>Project Backlog (<code>project_backlog.pdf</code>)</li>
+<li>Project Guidelines (<code>project_guidline_oms.pdf</code>)</li>
+</ul>
+<hr>
+<h2>2. Overall Description</h2>
+<h3>2.1 Product Perspective</h3>
+<p>The OMS will be a brand new web-based application replacing manual and time-consuming order processing practices at ABC Power Equipment Inc. The system will feature a centralized platform with role-based access control, allowing various stakeholders (Sales Representatives, Production Managers, Purchasing Officers, Finance Managers, Business Analysts, and Administrators) to interact safely and efficiently.</p>
+<h3>2.2 Product Functions</h3>
+<p>The OMS consists of the following core modules (Epics):</p>
+<ol>
+<li><strong>Order Management</strong>: Create, edit, and track sales orders.</li>
+<li><strong>BOM Management</strong>: Generate detailed Bill of Materials based on product configurations.</li>
+<li><strong>Purchase Order Management</strong>: Create, track, and manage purchase orders for required components.</li>
+<li><strong>Invoice and Payment Management</strong>: Generate invoices, track payments, and reconcile finances.</li>
+<li><strong>Reporting and Analytics</strong>: Access comprehensive reports and dashboards on performance and inventory.</li>
+<li><strong>User Management and Security</strong>: Manage role-based access controls and ensure data security.</li>
+</ol>
+<h3>2.3 User Classes and Characteristics</h3>
+<ul>
+<li><strong>Sales Representatives &amp; Customers</strong>: Utilize the Order Management module to book and track sales orders.</li>
+<li><strong>Production Managers &amp; Engineers</strong>: Handle the BOM module to plan and manage production accurately.</li>
+<li><strong>Purchasing Officers &amp; Suppliers</strong>: Use the Purchase Order Management module for procurement.</li>
+<li><strong>Finance Managers</strong>: Generate invoices and track payments via the Invoice and Payment Management module.</li>
+<li><strong>Business Analysts &amp; Managers</strong>: Analyze operational trends via the Reporting and Analytics dashboards.</li>
+<li><strong>Administrators</strong>: Manage user roles, access, and security compliance.</li>
+</ul>
+<h3>2.4 Operating Environment</h3>
+<ul>
+<li><strong>Cloud Infrastructure</strong>: AWS or Azure (Cloud-based deployment)</li>
+<li><strong>Front-end Environment</strong>: Modern web browsers (Chrome, Firefox, Safari, Edge) supporting React JS, HTML, CSS, JavaScript. (Note: Project is currently implemented in Angular based on previous repository contexts).</li>
+<li><strong>Back-end Environment</strong>: Node.js runtime with Express.js.</li>
+<li><strong>Database Server</strong>: Oracle SQL / SQL Server.</li>
+</ul>
+<h3>2.5 Design and Implementation Constraints</h3>
+<ul>
+<li>The system must integrate seamlessly with Agile practices (CI/CD via Jenkins, containerization with Docker/Kubernetes).</li>
+<li>Must adhere strictly to role-based access control (RBAC) to restrict unauthorized access to financial data.</li>
+<li>The project timeline enforces completion within an 18-week (4.5 months) window.</li>
+</ul>
+<hr>
+<h2>3. System Features (Functional Requirements)</h2>
+<h3>3.1 Order Management (Epic 1)</h3>
+<ul>
+<li><strong>Description:</strong> Allow sales representatives and customers to efficiently create, edit, manage, and process sales orders.</li>
+<li><strong>Key Features:</strong><ul>
+<li>Create and edit sales orders.</li>
+<li>Manage order status and track shipments.</li>
+<li>Generate order confirmations and notifications.</li>
+</ul>
+</li>
+<li><strong>Database Entities Impacted:</strong> <code>Sales_Order</code>, <code>Sales_Order_Item</code>, <code>Customer</code>, <code>Product</code>.</li>
+</ul>
+<h3>3.2 BOM Management (Epic 2)</h3>
+<ul>
+<li><strong>Description:</strong> Provide production managers with tools to generate detailed Bill of Materials (BOM).</li>
+<li><strong>Key Features:</strong><ul>
+<li>Create and maintain product configurations.</li>
+<li>Generate detailed BOMs from sales orders.</li>
+<li>Track changes in BOM structure.</li>
+</ul>
+</li>
+<li><strong>Database Entities Impacted:</strong> <code>Product</code>, <code>Product_BOM</code>.</li>
+</ul>
+<h3>3.3 Purchase Order Management (Epic 3)</h3>
+<ul>
+<li><strong>Description:</strong> Enable purchasing officers to create and manage purchase orders to replenish required components.</li>
+<li><strong>Key Features:</strong><ul>
+<li>Create, submit, and track purchase orders.</li>
+<li>Manage supplier information and communication.</li>
+</ul>
+</li>
+<li><strong>Database Entities Impacted:</strong> <code>Purchase_Order</code>, <code>Purchase_Order_Item</code>, <code>Supplier</code>.</li>
+</ul>
+<h3>3.4 Invoice and Payment Management (Epic 4)</h3>
+<ul>
+<li><strong>Description:</strong> Help finance managers generate invoices and track incoming payments against orders.</li>
+<li><strong>Key Features:</strong><ul>
+<li>Generate and send accurate invoices for sales orders.</li>
+<li>Track payment status and set up due date alerts.</li>
+<li>Reconcile payments and invoices.</li>
+</ul>
+</li>
+<li><strong>Database Entities Impacted:</strong> <code>Invoice</code>, <code>Payment</code>.</li>
+</ul>
+<h3>3.5 Reporting and Analytics (Epic 5)</h3>
+<ul>
+<li><strong>Description:</strong> Supply business analysts and managers with comprehensive operational reports.</li>
+<li><strong>Key Features:</strong><ul>
+<li>Dashboards for inventory levels, order statuses, and alerts.</li>
+<li>Trend and financial performance reporting.</li>
+</ul>
+</li>
+</ul>
+<h3>3.6 User Management and Security (Epic 6)</h3>
+<ul>
+<li><strong>Description:</strong> Secure the system against unauthorized access and assign appropriate permissions.</li>
+<li><strong>Key Features:</strong><ul>
+<li>Role-based Access Control (RBAC).</li>
+<li>Centralized user creation, updating, and suspension.</li>
+<li>Secure authentication protocols.</li>
+</ul>
+</li>
+<li><strong>Database Entities Impacted:</strong> <code>User</code>.</li>
+</ul>
+<hr>
+<h2>4. Non-Functional Requirements (NFR)</h2>
+<h3>4.1 Performance Requirements</h3>
+<ul>
+<li><strong>Order Processing Time:</strong> Maximum average of 2 days from order placement to shipment.</li>
+<li><strong>System Uptime:</strong> The system must guarantee 99.9% availability.</li>
+<li><strong>Scalability:</strong> The infrastructure should utilize containerization (Docker, Kubernetes) to easily scale horizontally during peak demand.</li>
+</ul>
+<h3>4.2 Quality Assurance Attributes</h3>
+<ul>
+<li><strong>Invoice Accuracy:</strong> The system shall maintain an invoice generation accuracy of at least 98%.</li>
+<li><strong>On-Time Delivery Rate:</strong> Target delivery success rate of 95% supported by real-time tracking.</li>
+<li><strong>Testing Standard:</strong> Unit tests will be implemented via Jest, with overall code coverage expectations to prevent regression bugs.</li>
+</ul>
+<h3>4.3 Security Requirements</h3>
+<ul>
+<li>All user passwords and sensitive information must be encrypted.</li>
+<li>Data transferred over the web must use HTTPS protocols.</li>
+<li>Access to specific endpoints (e.g., Reports, Finance) will be strictly guarded by server-side role verifications.</li>
+</ul>
+<hr>
+<h2>5. Technology Stack Summary</h2>
+<ul>
+<li><strong>Front-end:</strong> Angular, HTML5, Vanilla CSS, JavaScript</li>
+<li><strong>Back-end:</strong> Springboot</li>
+<li><strong>Database:</strong> Postgres SQL</li>
+<li><strong>DevOps &amp; Infrastructure:</strong> Github Actions, Jenkins (CI/CD), Docker, Kubernetes, Ansible</li>
+<li><strong>Code Quality &amp; Review:</strong> Git, GitHub, SonarQube</li>
+<li><strong>Project Management:</strong> JIRA, Slack, Microsoft Teams</li>
+</ul>
+<hr>
+<h2>6. Project Deliverables and Schedule</h2>
+<p>The total project duration is mapped to 18 weeks, delivered incrementally:</p>
+<ul>
+<li><strong>Order Management:</strong> 4 weeks</li>
+<li><strong>BOM Management:</strong> 3 weeks</li>
+<li><strong>Purchase Order Management:</strong> 4 weeks</li>
+<li><strong>Invoice and Payment Management:</strong> 3 weeks</li>
+<li><strong>Reporting &amp; Analytics / User Management:</strong> 4 weeks combined</li>
+</ul>
+<hr>
+<p><em>This SRS is formulated iteratively based on Agile methodologies and represents the requirements defined in the supporting documents.</em></p>
+
+</body>
+</html>

@@ -1,0 +1,594 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Design Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #eee;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Database Design Document</h1>
+<h2>1. Introduction</h2>
+<p>This document outlines the database schema, views, and stored procedures for the Web-based Order Management System (OMS) for <strong>ABC Power Equipment Inc.</strong> The database is designed to be implemented using <strong>PostgreSQL</strong>, catering to order processing, product management, purchase orders, invoicing, and user security.</p>
+<hr>
+<h2>2. Table Structures</h2>
+<h3>2.1 Users and Authentication</h3>
+<h4>Table: <code>User</code></h4>
+<p>Stores system user credentials and role-based access information.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>user_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique identifier for the user.</td>
+</tr>
+<tr>
+<td align="left"><code>username</code></td>
+<td align="left">VARCHAR(50)</td>
+<td align="left">Unique, Not Null</td>
+<td align="left">Login username.</td>
+</tr>
+<tr>
+<td align="left"><code>password</code></td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">Not Null</td>
+<td align="left">Hashed password.</td>
+</tr>
+<tr>
+<td align="left"><code>email</code></td>
+<td align="left">VARCHAR(100)</td>
+<td align="left">Unique, Not Null</td>
+<td align="left">User&#39;s email address.</td>
+</tr>
+<tr>
+<td align="left"><code>role</code></td>
+<td align="left">VARCHAR(50)</td>
+<td align="left">Not Null</td>
+<td align="left">Role (e.g., Admin, Sales, Production, Finance).</td>
+</tr>
+</tbody></table>
+<h3>2.2 Entities (Customers and Suppliers)</h3>
+<h4>Table: <code>Customer</code></h4>
+<p>Stores customer contact and billing information.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>customer_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique identifier for the customer.</td>
+</tr>
+<tr>
+<td align="left"><code>customer_name</code></td>
+<td align="left">VARCHAR(100)</td>
+<td align="left">Not Null</td>
+<td align="left">Full name or company name.</td>
+</tr>
+<tr>
+<td align="left"><code>email</code></td>
+<td align="left">VARCHAR(100)</td>
+<td align="left">Unique, Not Null</td>
+<td align="left">Contact email.</td>
+</tr>
+<tr>
+<td align="left"><code>phone</code></td>
+<td align="left">VARCHAR(20)</td>
+<td align="left"></td>
+<td align="left">Contact phone number.</td>
+</tr>
+<tr>
+<td align="left"><code>address</code></td>
+<td align="left">TEXT</td>
+<td align="left"></td>
+<td align="left">Billing/Shipping address.</td>
+</tr>
+</tbody></table>
+<h4>Table: <code>Supplier</code></h4>
+<p>Stores supplier contact information for procurement.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>supplier_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique identifier for the supplier.</td>
+</tr>
+<tr>
+<td align="left"><code>supplier_name</code></td>
+<td align="left">VARCHAR(100)</td>
+<td align="left">Not Null</td>
+<td align="left">Supplier company name.</td>
+</tr>
+<tr>
+<td align="left"><code>email</code></td>
+<td align="left">VARCHAR(100)</td>
+<td align="left">Unique, Not Null</td>
+<td align="left">Supplier contact email.</td>
+</tr>
+<tr>
+<td align="left"><code>phone</code></td>
+<td align="left">VARCHAR(20)</td>
+<td align="left"></td>
+<td align="left">Supplier phone number.</td>
+</tr>
+<tr>
+<td align="left"><code>address</code></td>
+<td align="left">TEXT</td>
+<td align="left"></td>
+<td align="left">Supplier physical address.</td>
+</tr>
+</tbody></table>
+<h3>2.3 Catalog and Inventory</h3>
+<h4>Table: <code>Product</code></h4>
+<p>Stores information for both finished products and raw components.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>product_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique identifier for the product/component.</td>
+</tr>
+<tr>
+<td align="left"><code>product_name</code></td>
+<td align="left">VARCHAR(150)</td>
+<td align="left">Not Null</td>
+<td align="left">Name of the product or component.</td>
+</tr>
+<tr>
+<td align="left"><code>description</code></td>
+<td align="left">TEXT</td>
+<td align="left"></td>
+<td align="left">Detailed description.</td>
+</tr>
+<tr>
+<td align="left"><code>unit_price</code></td>
+<td align="left">DECIMAL(10,2)</td>
+<td align="left">Not Null</td>
+<td align="left">Selling or purchasing price.</td>
+</tr>
+<tr>
+<td align="left"><code>quantity_in_stock</code></td>
+<td align="left">INTEGER</td>
+<td align="left">Default 0</td>
+<td align="left">Current inventory levels.</td>
+</tr>
+</tbody></table>
+<h4>Table: <code>Product_BOM</code> (Bill of Materials)</h4>
+<p>Defines the hierarchical relationship between a product and its required components.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>product_bom_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique identifier.</td>
+</tr>
+<tr>
+<td align="left"><code>product_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Product(product_id)</code> (Finished Good).</td>
+</tr>
+<tr>
+<td align="left"><code>component_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Product(product_id)</code> (Raw Material).</td>
+</tr>
+<tr>
+<td align="left"><code>quantity</code></td>
+<td align="left">INTEGER</td>
+<td align="left">Not Null</td>
+<td align="left">Quantity of the component needed.</td>
+</tr>
+</tbody></table>
+<h3>2.4 Sales Order Management</h3>
+<h4>Table: <code>Sales_Order</code></h4>
+<p>Records overall sales order details placed by customers.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>sales_order_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique order identifier.</td>
+</tr>
+<tr>
+<td align="left"><code>customer_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Customer(customer_id)</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>order_date</code></td>
+<td align="left">TIMESTAMP</td>
+<td align="left">Default NOW()</td>
+<td align="left">Date the order was placed.</td>
+</tr>
+<tr>
+<td align="left"><code>total_amount</code></td>
+<td align="left">DECIMAL(12,2)</td>
+<td align="left">Not Null</td>
+<td align="left">Total order value.</td>
+</tr>
+<tr>
+<td align="left"><code>status</code></td>
+<td align="left">VARCHAR(50)</td>
+<td align="left">Not Null</td>
+<td align="left">Status (Pending, Processed, Invoiced, Shipped).</td>
+</tr>
+</tbody></table>
+<h4>Table: <code>Sales_Order_Item</code></h4>
+<p>Records individual items within a sales order.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>sales_order_item_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique item identifier.</td>
+</tr>
+<tr>
+<td align="left"><code>sales_order_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Sales_Order(sales_order_id)</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>product_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Product(product_id)</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>quantity</code></td>
+<td align="left">INTEGER</td>
+<td align="left">Not Null</td>
+<td align="left">Number of items ordered.</td>
+</tr>
+<tr>
+<td align="left"><code>unit_price</code></td>
+<td align="left">DECIMAL(10,2)</td>
+<td align="left">Not Null</td>
+<td align="left">Price per unit at the time of order.</td>
+</tr>
+</tbody></table>
+<h3>2.5 Purchase Order Management</h3>
+<h4>Table: <code>Purchase_Order</code></h4>
+<p>Records orders placed to suppliers for procurement.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>purchase_order_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique PO identifier.</td>
+</tr>
+<tr>
+<td align="left"><code>supplier_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Supplier(supplier_id)</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>order_date</code></td>
+<td align="left">TIMESTAMP</td>
+<td align="left">Default NOW()</td>
+<td align="left">Date the PO was raised.</td>
+</tr>
+<tr>
+<td align="left"><code>total_amount</code></td>
+<td align="left">DECIMAL(12,2)</td>
+<td align="left">Not Null</td>
+<td align="left">Total PO value.</td>
+</tr>
+<tr>
+<td align="left"><code>status</code></td>
+<td align="left">VARCHAR(50)</td>
+<td align="left">Not Null</td>
+<td align="left">Status (Draft, Submitted, Received).</td>
+</tr>
+</tbody></table>
+<h4>Table: <code>Purchase_Order_Item</code></h4>
+<p>Records individual components within a purchase order.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>purchase_order_item_id</code></td>
+<td align="left">UUID/SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique PO item identifier.</td>
+</tr>
+<tr>
+<td align="left"><code>purchase_order_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Purchase_Order(purchase_order_id)</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>product_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Product(product_id)</code> (Component).</td>
+</tr>
+<tr>
+<td align="left"><code>quantity</code></td>
+<td align="left">INTEGER</td>
+<td align="left">Not Null</td>
+<td align="left">Number of components ordered.</td>
+</tr>
+<tr>
+<td align="left"><code>unit_price</code></td>
+<td align="left">DECIMAL(10,2)</td>
+<td align="left">Not Null</td>
+<td align="left">Purchasing price per unit.</td>
+</tr>
+</tbody></table>
+<h3>2.6 Finance (Invoicing &amp; Payments)</h3>
+<h4>Table: <code>Invoice</code></h4>
+<p>Stores invoice generation details against sales orders.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>invoice_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique invoice identifier.</td>
+</tr>
+<tr>
+<td align="left"><code>sales_order_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Sales_Order(sales_order_id)</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>invoice_date</code></td>
+<td align="left">TIMESTAMP</td>
+<td align="left">Default NOW()</td>
+<td align="left">Date invoice was generated.</td>
+</tr>
+<tr>
+<td align="left"><code>total_amount</code></td>
+<td align="left">DECIMAL(12,2)</td>
+<td align="left">Not Null</td>
+<td align="left">Amount billed to customer.</td>
+</tr>
+<tr>
+<td align="left"><code>status</code></td>
+<td align="left">VARCHAR(50)</td>
+<td align="left">Not Null</td>
+<td align="left">Status (Generated, Sent, Paid, Overdue).</td>
+</tr>
+</tbody></table>
+<h4>Table: <code>Payment</code></h4>
+<p>Tracks customer payments made against invoices.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column Name</th>
+<th align="left">Data Type</th>
+<th align="left">Constraints</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>payment_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Primary Key</td>
+<td align="left">Unique payment identifier.</td>
+</tr>
+<tr>
+<td align="left"><code>invoice_id</code></td>
+<td align="left">UUID / SERIAL</td>
+<td align="left">Foreign Key</td>
+<td align="left">Maps to <code>Invoice(invoice_id)</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>payment_date</code></td>
+<td align="left">TIMESTAMP</td>
+<td align="left">Default NOW()</td>
+<td align="left">Date payment was received.</td>
+</tr>
+<tr>
+<td align="left"><code>amount</code></td>
+<td align="left">DECIMAL(12,2)</td>
+<td align="left">Not Null</td>
+<td align="left">Amount paid.</td>
+</tr>
+<tr>
+<td align="left"><code>payment_method</code></td>
+<td align="left">VARCHAR(50)</td>
+<td align="left">Not Null</td>
+<td align="left">Mode of payment (Card, Bank Transfer, Check).</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. Database Views</h2>
+<p>Views will be implemented to optimize complex reporting and analytics requirements:</p>
+<ol>
+<li><strong><code>Sales_Order_Details</code></strong>: <ul>
+<li>Joins <code>Sales_Order</code>, <code>Sales_Order_Item</code>, and <code>Product</code>.</li>
+<li>Retrieves comprehensive sales order details including customer info, order timestamps, and product-level breakdowns.</li>
+</ul>
+</li>
+<li><strong><code>Purchase_Order_Details</code></strong>: <ul>
+<li>Joins <code>Purchase_Order</code>, <code>Purchase_Order_Item</code>, and <code>Product</code>.</li>
+<li>Retrieves procurement details, vendor information, and requested stock.</li>
+</ul>
+</li>
+<li><strong><code>Product_Inventory</code></strong>: <ul>
+<li>Joins <code>Product</code> and <code>Product_BOM</code>.</li>
+<li>Maps parent products to child components to visualize real-time inventory viability for manufacturing.</li>
+</ul>
+</li>
+<li><strong><code>Invoice_Payment_Status</code></strong>: <ul>
+<li>Joins <code>Invoice</code> and <code>Payment</code>.</li>
+<li>Tracks financial reconciliation, revealing partial payments, unpaid balances, and overdue accounts.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>4. Stored Procedures / Application Business Logic Functions</h2>
+<p>As the backend is built on <strong>Spring Boot</strong> with <strong>PostgreSQL</strong>, these procedures can be implemented via PostgreSQL <code>PL/pgSQL</code> functions or maintained as transactional services within the Spring Boot application layer.</p>
+<ol>
+<li><strong><code>Create_Sales_Order(customer_data, products_list)</code></strong><ul>
+<li>Inserts records into <code>Sales_Order</code> and <code>Sales_Order_Item</code>.</li>
+<li>Deducts ordered quantities from <code>Product.quantity_in_stock</code>.</li>
+</ul>
+</li>
+<li><strong><code>Generate_BOM(product_id)</code></strong><ul>
+<li>Queries <code>Product_BOM</code> recursively (if necessary) for a specific product ID.</li>
+<li>Calculates and returns total required component quantities.</li>
+</ul>
+</li>
+<li><strong><code>Create_Purchase_Order(supplier_data, components_list)</code></strong><ul>
+<li>Inserts records into <code>Purchase_Order</code> and <code>Purchase_Order_Item</code>.</li>
+<li>Pre-allocates incoming stock status.</li>
+</ul>
+</li>
+<li><strong><code>Generate_Invoice(sales_order_id)</code></strong><ul>
+<li>Aggregates the sales order data and creates a new record in <code>Invoice</code>.</li>
+<li>Updates <code>Sales_Order.status</code> to &quot;Invoiced&quot;.</li>
+</ul>
+</li>
+<li><strong><code>Record_Payment(invoice_id, amount, payment_method)</code></strong><ul>
+<li>Inserts a record into the <code>Payment</code> table.</li>
+<li>Validates the total paid against the invoice amount and updates <code>Invoice.status</code> to &quot;Paid&quot; if fully settled.</li>
+</ul>
+</li>
+<li><strong><code>Generate_Reports(report_type, start_date, end_date)</code></strong><ul>
+<li>Dynamically calls predefined views (<code>Sales_Order_Details</code>, <code>Invoice_Payment_Status</code>, etc.) based on requested date ranges.</li>
+</ul>
+</li>
+<li><strong><code>Manage_Users(user_data)</code></strong><ul>
+<li>Handles administrative CRUD operations on the <code>User</code> table, including secure password hashing and role assignments.</li>
+</ul>
+</li>
+</ol>
+
+</body>
+</html>

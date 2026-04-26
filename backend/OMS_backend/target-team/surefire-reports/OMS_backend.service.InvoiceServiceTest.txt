@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: OMS_backend.service.InvoiceServiceTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.312 s -- in OMS_backend.service.InvoiceServiceTest
