@@ -1,0 +1,8 @@
+OMS_backend\service\OrderServiceTest.class
+OMS_backend\controller\OrderControllerTest.class
+OMS_backend\OmsBackendApplicationTests.class
+OMS_backend\controller\AuthControllerTest.class
+OMS_backend\service\InvoiceServiceTest.class
+OMS_backend\service\PurchaseOrderServiceTest.class
+OMS_backend\service\BOMServiceTest.class
+OMS_backend\service\UserServiceTest.class
