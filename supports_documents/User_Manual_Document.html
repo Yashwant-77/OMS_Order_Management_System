@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Manual - Order Management System (OMS)</title>
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --secondary-color: #3b82f6;
+            --accent-color: #10b981;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --bg-color: #f8fafc;
+            --container-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --heading-font: 'Inter', system-ui, -apple-system, sans-serif;
+            --body-font: 'Roboto', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            font-family: var(--body-font);
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--heading-font);
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            text-align: center;
+            margin-top: 0;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--secondary-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            background-color: var(--container-bg);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header-section p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .toc {
+            background-color: #f1f5f9;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 3rem;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+            border-bottom: none;
+            color: var(--primary-color);
+        }
+
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc a {
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .toc a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .section-block {
+            margin-bottom: 3rem;
+        }
+
+        .info-box {
+            background-color: #e0f2fe;
+            border-left: 4px solid var(--secondary-color);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box h4 {
+            margin-top: 0;
+            color: #0369a1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: var(--container-bg);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .step-list {
+            padding-left: 1.5rem;
+        }
+
+        .step-list li {
+            margin-bottom: 0.75rem;
+        }
+
+        .step-list li strong {
+            color: var(--primary-color);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .role-badge.admin { background-color: #ef4444; }
+        .role-badge.finance { background-color: #10b981; }
+        .role-badge.sales { background-color: #f59e0b; }
+        .role-badge.production { background-color: #8b5cf6; }
+        .role-badge.purchase { background-color: #ec4899; }
+        .role-badge.analytics { background-color: #06b6d4; }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-section">
+        <h1>Order Management System (OMS)</h1>
+        <p>Comprehensive User Manual for ABC Power Equipment Inc.</p>
+        <p>Version 1.0</p>
+    </div>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#getting-started">2. Getting Started</a></li>
+            <li><a href="#user-roles">3. User Roles & Personas</a></li>
+            <li><a href="#module-order">4. Order Management</a></li>
+            <li><a href="#module-bom">5. BOM Management</a></li>
+            <li><a href="#module-purchase">6. Purchase Order Management</a></li>
+            <li><a href="#module-invoice">7. Invoice & Payment Management</a></li>
+            <li><a href="#module-reports">8. Reporting & Analytics</a></li>
+            <li><a href="#module-admin">9. User Management & Security</a></li>
+            <li><a href="#support">10. Support & Troubleshooting</a></li>
+        </ul>
+    </div>
+
+    <div id="introduction" class="section-block">
+        <h2>1. Introduction</h2>
+        <p>Welcome to the <strong>Web-based Order Management System (OMS)</strong>. This system is designed specifically for ABC Power Equipment Inc. to streamline and automate order processing, bill of materials (BOM) generation, purchase order creation, invoicing, and payment tracking.</p>
+        <p>The main objective of the OMS is to reduce order processing time, improve invoice accuracy, and enhance the overall on-time delivery rate. This centralized application provides a cohesive and secure environment for all departments to collaborate efficiently.</p>
+    </div>
+
+    <div id="getting-started" class="section-block">
+        <h2>2. Getting Started</h2>
+        <h3>2.1 Accessing the System</h3>
+        <p>The OMS is a web-based application accessible via any modern web browser (Google Chrome, Mozilla Firefox, Microsoft Edge, or Apple Safari). Navigate to the provided company URL to access the login portal.</p>
+        
+        <h3>2.2 Login Process</h3>
+        <ol class="step-list">
+            <li>Open your web browser and enter the OMS URL.</li>
+            <li>On the login page, select your <strong>Role</strong> from the dropdown menu.</li>
+            <li>Input your registered <strong>Email</strong> and <strong>Password</strong>.</li>
+            <li>Click on the <strong>Submit</strong> button to login.</li>
+            <li>If you have forgotten your password, click the <em>"Forgot Password?"</em> link to initiate the reset process via email.</li>
+        </ol>
+
+        <div class="info-box">
+            <h4>Security Note</h4>
+            <p>Your access is governed by Role-Based Access Control (RBAC). The dashboard and modules visible to you will depend entirely on the role assigned to you by the System Administrator.</p>
+        </div>
+    </div>
+
+    <div id="user-roles" class="section-block">
+        <h2>3. User Roles & Personas</h2>
+        <p>The system caters to different user groups, each with specific permissions:</p>
+        <ul>
+            <li><span class="role-badge sales">Sales Representative</span> <strong>& Customers:</strong> Focused on creating, tracking, and managing sales orders.</li>
+            <li><span class="role-badge production">Production Manager</span> <strong>& Engineers:</strong> Responsible for generating and managing product configurations and detailed Bill of Materials (BOM).</li>
+            <li><span class="role-badge purchase">Purchasing Officer</span> <strong>& Suppliers:</strong> Handles the creation and tracking of purchase orders for necessary inventory components.</li>
+            <li><span class="role-badge finance">Finance Manager</span> <strong>:</strong> Manages the generation of invoices, tracking of payments, and reconciliation.</li>
+            <li><span class="role-badge analytics">Business Analyst</span> <strong>& Managers:</strong> Accesses high-level reports, trends, and operational dashboards.</li>
+            <li><span class="role-badge admin">Administrator</span> <strong>:</strong> Configures the system, manages users, roles, permissions, and ensures overall data security.</li>
+        </ul>
+    </div>
+
+    <div id="module-order" class="section-block">
+        <h2>4. Order Management</h2>
+        <p><em>Primary Users: Sales Representatives, Customers</em></p>
+        <p>The Order Management module allows for the efficient creation and tracking of customer sales orders.</p>
+        
+        <h3>4.1 Creating a New Sales Order</h3>
+        <ol class="step-list">
+            <li>Navigate to the <strong>Sales Orders</strong> tab on the left-hand navigation menu.</li>
+            <li>Click the <strong>+ Create Order</strong> button at the top right of the screen.</li>
+            <li>Select the <strong>Customer</strong> from the dropdown menu (or add a new customer if authorized).</li>
+            <li>Add the requested <strong>Products</strong>, specifying the quantity for each. The unit price will automatically populate.</li>
+            <li>Review the <strong>Total Amount</strong> and click <strong>Submit Order</strong>.</li>
+        </ol>
+
+        <h3>4.2 Managing Order Status</h3>
+        <ul class="step-list">
+            <li>To update an order, locate it in the Sales Order list and click <strong>View/Edit</strong>.</li>
+            <li>You can change the status (e.g., Pending, Processing, Shipped, Delivered) using the <strong>Update Status</strong> dropdown.</li>
+            <li>Changes automatically trigger notifications to the customer and update the system dashboards.</li>
+        </ul>
+    </div>
+
+    <div id="module-bom" class="section-block">
+        <h2>5. BOM Management</h2>
+        <p><em>Primary Users: Production Managers, Engineers</em></p>
+        <p>This module allows the manufacturing team to generate detailed Bill of Materials based on product configurations.</p>
+        
+        <h3>5.1 Managing Product Configurations</h3>
+        <ol class="step-list">
+            <li>Go to the <strong>Products & BOM</strong> section.</li>
+            <li>Select a specific Product to view its details.</li>
+            <li>Click on the <strong>Bill of Materials</strong> tab to view the components required to manufacture the product.</li>
+        </ol>
+
+        <h3>5.2 Generating a BOM</h3>
+        <ul class="step-list">
+            <li>To link components to a product, click <strong>Add Component</strong>.</li>
+            <li>Select the component item from the inventory list and specify the required <strong>Quantity</strong>.</li>
+            <li>Save the configuration. The system utilizes this BOM to deduct inventory appropriately when a sales order is processed or to trigger purchase alerts.</li>
+        </ul>
+    </div>
+
+    <div id="module-purchase" class="section-block">
+        <h2>6. Purchase Order Management</h2>
+        <p><em>Primary Users: Purchasing Officers, Suppliers</em></p>
+        <p>Ensure that manufacturing components are always in stock by creating and tracking Purchase Orders (POs) with suppliers.</p>
+
+        <h3>6.1 Creating a Purchase Order</h3>
+        <ol class="step-list">
+            <li>Navigate to <strong>Purchase Orders</strong>.</li>
+            <li>Click <strong>+ New PO</strong>.</li>
+            <li>Select a <strong>Supplier</strong>.</li>
+            <li>Add the required <strong>Components/Products</strong> and specify quantities.</li>
+            <li>Verify the total amount and click <strong>Generate PO</strong>. The PO will be sent directly to the supplier's registered email.</li>
+        </ol>
+
+        <h3>6.2 Tracking PO Status</h3>
+        <p>You can track the status of POs (e.g., Requested, Approved, In Transit, Received). Upon receiving the items physically, update the PO status to <strong>Received</strong> to automatically update the system's stock inventory levels.</p>
+    </div>
+
+    <div id="module-invoice" class="section-block">
+        <h2>7. Invoice & Payment Management</h2>
+        <p><em>Primary Users: Finance Managers</em></p>
+        <p>Generate invoices seamlessly from completed sales orders and track the incoming payments.</p>
+
+        <h3>7.1 Generating Invoices</h3>
+        <ol class="step-list">
+            <li>Go to the <strong>Invoices</strong> tab.</li>
+            <li>Click <strong>Generate Invoice</strong> and select a fulfilled <strong>Sales Order</strong>.</li>
+            <li>The system will auto-fill customer details, items, and total amounts.</li>
+            <li>Click <strong>Create & Send</strong>. This changes the order status to "Invoiced".</li>
+        </ol>
+
+        <h3>7.2 Recording Payments</h3>
+        <ol class="step-list">
+            <li>Navigate to the <strong>Payments</strong> section.</li>
+            <li>Click <strong>Record Payment</strong>.</li>
+            <li>Select the corresponding Invoice ID.</li>
+            <li>Enter the <strong>Payment Amount</strong>, <strong>Date</strong>, and <strong>Payment Method</strong> (e.g., Credit Card, Bank Transfer).</li>
+            <li>If the payment matches the total invoice amount, the invoice status will automatically update to <strong>Paid</strong>.</li>
+        </ol>
+    </div>
+
+    <div id="module-reports" class="section-block">
+        <h2>8. Reporting & Analytics</h2>
+        <p><em>Primary Users: Business Analysts, Managers</em></p>
+        <p>Access high-level overviews of company performance, inventory status, and financial health.</p>
+        
+        <h3>8.1 Using the Dashboard</h3>
+        <ul class="step-list">
+            <li>The <strong>Analytics Dashboard</strong> provides real-time graphs and KPIs (Key Performance Indicators) such as <em>Monthly Revenue</em>, <em>Orders Processed</em>, and <em>On-Time Delivery Rate</em>.</li>
+            <li>Use the date-range filter at the top right to analyze specific periods.</li>
+        </ul>
+
+        <h3>8.2 Generating Reports</h3>
+        <ol class="step-list">
+            <li>Go to the <strong>Reports</strong> tab.</li>
+            <li>Select the type of report (e.g., Sales Report, Inventory Levels, Financial Summary).</li>
+            <li>Select the desired date range and click <strong>Generate</strong>.</li>
+            <li>Reports can be exported in PDF or Excel (CSV) formats for offline use.</li>
+        </ol>
+    </div>
+
+    <div id="module-admin" class="section-block">
+        <h2>9. User Management & Security</h2>
+        <p><em>Primary Users: Administrators</em></p>
+        <p>Maintain the integrity and security of the system by managing user access.</p>
+
+        <h3>9.1 Managing Users</h3>
+        <ol class="step-list">
+            <li>Navigate to the <strong>Users</strong> tab in the navigation menu.</li>
+            <li>To add a new employee, click the <strong>+ Add User</strong> button.</li>
+            <li>Enter the user's <strong>Name</strong> and <strong>Email</strong>.</li>
+            <li>Select an appropriate <strong>Role</strong> from the dropdown (e.g., Finance Manager, Sales Representative).</li>
+            <li>Click <strong>Create User</strong> to save.</li>
+        </ol>
+
+        <h3>9.2 Security and Access Controls</h3>
+        <p>Administrators have the capability to suspend accounts, force password resets, and view audit logs to monitor system activity. The system uses strict Role-Based Access Control (RBAC) to ensure that users can only access modules relevant to their job functions.</p>
+    </div>
+
+    <div id="support" class="section-block">
+        <h2>10. Support & Troubleshooting</h2>
+        <p>If you encounter any issues while using the Order Management System:</p>
+        <ul class="step-list">
+            <li><strong>Clear Browser Cache:</strong> Often, display or loading issues can be resolved by clearing your browser's cache.</li>
+            <li><strong>Check Internet Connection:</strong> Ensure you are connected to a stable network.</li>
+            <li><strong>Contact IT Support:</strong> For persistent bugs, password resets (if email reset fails), or role permission issues, please contact the internal IT Support Desk at <strong>it-support@abcpower.com</strong> or call ext. <strong>1234</strong>.</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 ABC Power Equipment Inc. All rights reserved.</p>
+        <p>Confidential and Proprietary - Order Management System User Manual</p>
+    </footer>
+</div>
+
+</body>
+</html>

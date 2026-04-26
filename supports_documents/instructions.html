@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OMS Project - User Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #6366f1;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 5px;
+            border-radius: 5px;
+            display: block;
+        }
+        .box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 5px solid #6366f1;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Order Management System (OMS)</h1>
+<p style="text-align:center;"><strong>User Guide & Execution Instructions</strong></p>
+
+<h2>1. Project Overview</h2>
+<p>
+This project is a Web-Based Order Management System developed to manage orders,
+inventory, invoices, and payments efficiently.
+</p>
+
+<h2>2. Folder Structure</h2>
+<div class="box">
+<pre>
+OMS_Project/
+│
+├── frontend/        (Angular Build)
+├── backend/         (Spring Boot JAR)
+├── supported-documents/
+└── README.html
+</pre>
+</div>
+
+<h2>3. System Requirements</h2>
+<ul>
+    <li>Java 17 or above installed</li>
+    <li>Node.js (optional for frontend server)</li>
+    <li>Modern browser (Chrome recommended)</li>
+</ul>
+
+<h2>4. Backend Setup (Spring Boot)</h2>
+<p>Steps to run backend:</p>
+<code>
+cd backend<br>
+java -jar OMS_backend-0.0.1-SNAPSHOT.jar
+</code>
+
+<p>Backend will start at:</p>
+<code>http://localhost:8080</code>
+
+<h2>5. Environment Variables Setup (Backend)</h2>
+
+<p>
+Before running the backend, you must configure the required environment variables.
+These variables are used for database connection, authentication, and email services.
+</p>
+
+<div class="box">
+<pre>
+DB_URL=your_database_url
+DB_USER=your_database_username
+DB_PASS=your_database_password
+JWT_SECRET=your_jwt_secret_key
+MAIL_USERNAME=your_email_address
+MAIL_PASSWORD=your_email_password
+</pre>
+</div>
+
+<h3>How to Set Environment Variables</h3>
+
+<p><strong>For Windows (Command Prompt):</strong></p>
+<code>
+set DB_URL=your_value<br>
+set DB_USER=your_value<br>
+set DB_PASS=your_value<br>
+set JWT_SECRET=your_value<br>
+set MAIL_USERNAME=your_value<br>
+set MAIL_PASSWORD=your_value
+</code>
+
+<p><strong>For Windows (PowerShell):</strong></p>
+<code>
+$env:DB_URL="your_value"<br>
+$env:DB_USER="your_value"<br>
+$env:DB_PASS="your_value"<br>
+$env:JWT_SECRET="your_value"<br>
+$env:MAIL_USERNAME="your_value"<br>
+$env:MAIL_PASSWORD="your_value"
+</code>
+
+<p><strong>For Linux / Mac:</strong></p>
+<code>
+export DB_URL=your_value<br>
+export DB_USER=your_value<br>
+export DB_PASS=your_value<br>
+export JWT_SECRET=your_value<br>
+export MAIL_USERNAME=your_value<br>
+export MAIL_PASSWORD=your_value
+</code>
+
+<p><strong>Note:</strong> Ensure all environment variables are properly set before starting the backend. Missing variables may prevent the application from running.</p>
+
+<h2>5. Frontend Setup (Angular Build)</h2>
+
+<p><strong>Option 1 (Recommended):</strong></p>
+<code>
+cd frontend <br>
+npm install -g serve<br>
+serve frontend
+</code>
+
+<p>Then open:</p>
+<code>http://localhost:3000</code>
+
+<p><strong>Option 2:</strong></p>
+<p>Open <strong>index.html</strong> directly in browser</p>
+
+<h2>6. Important Notes</h2>
+<ul>
+    <li>Start backend before frontend</li>
+    <li>Ensure API URLs are correctly configured</li>
+    <li>Database should be pre-configured</li>
+</ul>
+
+<h2>7. Sample Login Credentials</h2>
+<div class="box">
+<p><strong>Admin User:</strong></p>
+<p>Role: ADMINISTRATOR</p>
+<p>Email: chouhanyashwant98@gmail.com</p>
+<p>Password: Yashwant77@</p>
+</div>
+
+<h2>8. Conclusion</h2>
+<p>
+This system helps automate order processing, improve accuracy, and enhance
+business efficiency.
+</p>
+
+</body>
+</html>
