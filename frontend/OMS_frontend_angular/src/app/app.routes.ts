@@ -69,7 +69,7 @@ export const routes: Routes = [
         path: 'bom',
         component: BomCreate,
         canActivate: [authGuard],
-        data: { role: ['ADMINISTRATOR', 'PRODUCT_MANAGER' , 'SALES_REPRESENTATIVE'] },
+        data: { role: ['ADMINISTRATOR', 'PRODUCT_MANAGER' ] },
       },
       {
         path: 'invoice',

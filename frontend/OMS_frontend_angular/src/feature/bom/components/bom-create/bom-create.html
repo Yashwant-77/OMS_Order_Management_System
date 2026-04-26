@@ -1,4 +1,4 @@
-<div class="rounded-2xl p-6 bg-gray-50 min-h-[85vh]">
+<div class="rounded-lg p-6 bg-gray-50 min-h-[85vh]">
 
   <!-- Header -->
   <h1 class="text-xl w-full font-semibold mb-4">
@@ -62,7 +62,7 @@
     </div>
 
     <!-- Add Component -->
-    <button type="button" (click)="addItem()" class="bg-gray-100 px-3 py-1 rounded mb-4 hover:bg-gray-200">
+    <button [disabled]="getRole()!=='PRODUCT_MANAGER'" type="button" (click)="addItem()" class=" px-3 py-1 rounded mb-4  bg-[#3f51b5] hover:bg-[#5c6bc0] text-white   transition disabled:bg-[#5c6bc0] disabled:cursor-not-allowed disabled:opacity-70">
       + Add Component
     </button>
 
@@ -93,7 +93,7 @@
     <!-- ================= ACTIONS ================= -->
     <div class="flex gap-3">
       <button type="submit" [disabled]="bomForm.invalid"
-        class="bg-[#3f51b5] hover:bg-[#5c6bc0] text-white px-4 py-2 rounded-lg transition">
+        class="bg-[#3f51b5] hover:bg-[#5c6bc0] text-white px-4 py-2 rounded-lg transition disabled:bg-[#5c6bc0] disabled:cursor-not-allowed disabled:opacity-70">
         Create BOM
       </button>
 

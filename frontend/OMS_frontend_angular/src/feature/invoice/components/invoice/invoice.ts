@@ -197,4 +197,9 @@ export class Invoice implements OnInit {
       duration: 3000,
     });
   }
+
+
+  getRole(){
+    return this.userService.getRole();
+  }
 }

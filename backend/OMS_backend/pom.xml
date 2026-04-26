@@ -104,6 +104,13 @@
             <version>2.8.16</version>
         </dependency>
 
+        <!-- Spring Security Test -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JJWT Jackson (runtime only) -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -143,6 +150,14 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.5</version>
+                <configuration>
+                    <forkCount>0</forkCount>
                 </configuration>
             </plugin>
         </plugins>

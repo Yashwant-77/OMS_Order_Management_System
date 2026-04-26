@@ -243,4 +243,8 @@ export class BomCreate implements OnInit {
       this.router.navigate(['/login']);
     }
   }
+
+  getRole(){
+    return this.userService.getRole();
+  }
 }
