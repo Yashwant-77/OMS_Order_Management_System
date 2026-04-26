@@ -1,4 +1,4 @@
-<div class="mx-1 mt-1 flex-1 bg-gray-50 overflow-x-hidden overflow-y-auto">
+<div class="rounded-lg mx-1 mt-1 flex-1 bg-gray-50 overflow-x-hidden overflow-y-auto">
   <div class="p-6 bg-gray-50 min-h-[85vh] rounded-2xl">
 
     <!-- Header -->
@@ -88,7 +88,7 @@
                       {{ invoice.status | titlecase }}
                     </span>
                   </td>
-                  <td class="p-4">
+                  <td  class="p-4">
                     <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md text-sm transition-colors whitespace-nowrap" type="button">
                       {{ expandedInvoiceId === invoice.invoiceId ? '▲ Hide' : '▼ Payments' }}
                     </button>
@@ -128,7 +128,7 @@
                       <p *ngIf="!paymentsMap[invoice.invoiceId]?.length" class="text-gray-400 text-sm mb-4">No payments recorded yet.</p>
 
                       <!-- Record Payment Form -->
-                      <div *ngIf="invoice.status !== 'PAID'" class="border-t border-gray-200 pt-4 mt-2">
+                      <div  *ngIf="invoice.status !== 'PAID'" class="border-t border-gray-200 pt-4 mt-2">
                         <h4 class="text-sm font-semibold text-gray-700 mb-2">Record Payment</h4>
                         <div class="flex flex-wrap items-center gap-3">
                           <input
@@ -148,7 +148,7 @@
                             [(ngModel)]="getPaymentState(invoice.invoiceId).notes"
                             class="flex-1 min-w-[200px] px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
 
-                          <button type="button" (click)="recordPayment(invoice)" class="text-white px-4 py-2 rounded-lg bg-[#3f51b5] hover:bg-[#5c6bc0] transition-colors text-sm">
+                          <button [disabled]="getRole()!=='FINANCE_MANAGER'" type="button" (click)="recordPayment(invoice)" class="text-white px-4 py-2 rounded-lg bg-[#3f51b5] hover:bg-[#5c6bc0] disabled:bg-[#5c6bc0] disabled:cursor-not-allowed disabled:opacity-70 transition-colors text-sm">
                             Record
                           </button>
                         </div>
